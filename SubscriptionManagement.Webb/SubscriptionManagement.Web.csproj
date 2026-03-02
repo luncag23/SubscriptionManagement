@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DataContract\DataContract.csproj" />
+    <ProjectReference Include="..\SubscriptionManagement.Application\BusinessLogic.csproj" />
+    <ProjectReference Include="..\SubscriptionManagement.Infrastructure\DAL.csproj" />
+  </ItemGroup>
+
+</Project>

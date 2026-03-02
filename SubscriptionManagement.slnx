@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="DataContract/DataContract.csproj" Id="2b34012e-7303-42a7-8bc3-8b41ae5755d6" />
+  <Project Path="SubscriptionManagement.Application/BusinessLogic.csproj" />
+  <Project Path="SubscriptionManagement.Domain/Domain.csproj" />
+  <Project Path="SubscriptionManagement.Infrastructure/DAL.csproj" />
+  <Project Path="SubscriptionManagement.Webb/SubscriptionManagement.Web.csproj" />
+</Solution>
