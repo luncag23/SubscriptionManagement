@@ -8,10 +8,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DataContract\DataContract.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Concrete\" />
+    <ProjectReference Include="..\SubscriptionManagement.Domain\Domain.csproj" />
+    <ProjectReference Include="..\SubscriptionManagement.Infrastructure\DAL.csproj" />
   </ItemGroup>
 
 </Project>

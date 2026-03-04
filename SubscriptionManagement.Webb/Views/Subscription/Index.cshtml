@@ -1,0 +1,44 @@
+﻿@{
+    ViewData["Title"] = "Subscription Factory Test";
+}
+
+<h1>Subscription Management (Factory Method Demo)</h1>
+
+@if (ViewBag.Message != null)
+{
+    <div style="color: green; font-weight: bold; border: 1px solid green; padding: 10px; margin-bottom: 20px;">
+        @ViewBag.Message
+    </div>
+}
+
+@if (ViewBag.Error != null)
+{
+    <div style="color: red; font-weight: bold; border: 1px solid red; padding: 10px; margin-bottom: 20px;">
+        @ViewBag.Error
+    </div>
+}
+
+<form asp-action="Subscribe" method="post">
+    <div>
+        <label>ID Utilizator (Guid):</label><br />
+        <input type="text" name="userId" value="@Guid.NewGuid()" style="width: 300px;" />
+    </div>
+    <br />
+
+    <div>
+        <label>Alege Tipul de Abonament (Factory Decision):</label><br />
+        <select name="planType">
+            <option value="free">Free Trial (7 zile)</option>
+            <option value="premium">Premium (Plată necesară)</option>
+        </select>
+    </div>
+    <br />
+
+    <button type="submit">Activează prin Factory</button>
+</form>
+
+<hr />
+<p>
+    <b>Cum funcționează:</b> Când apeși butonul, Controller-ul nu știe ce logică să aplice.
+    El cere un Manager de la <i>SubscriptionProvider</i>, care îi dă obiectul corect creat prin <b>Factory Method</b>.
+</p>
