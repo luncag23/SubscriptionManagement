@@ -1,44 +1,49 @@
 ﻿@{
-    ViewData["Title"] = "Subscription Factory Test";
+    ViewData["Title"] = "Pattern Integration";
 }
 
-<h1>Subscription Management (Factory Method Demo)</h1>
+<h1>Subscription Management</h1>
 
 @if (ViewBag.Message != null)
 {
-    <div style="color: green; font-weight: bold; border: 1px solid green; padding: 10px; margin-bottom: 20px;">
+    <div style="color: green; border: 1px solid green; padding: 10px; margin-bottom: 20px;">
         @ViewBag.Message
     </div>
 }
 
 @if (ViewBag.Error != null)
 {
-    <div style="color: red; font-weight: bold; border: 1px solid red; padding: 10px; margin-bottom: 20px;">
+    <div style="color: red; border: 1px solid red; padding: 10px; margin-bottom: 20px;">
         @ViewBag.Error
     </div>
 }
 
 <form asp-action="Subscribe" method="post">
-    <div>
-        <label>ID Utilizator (Guid):</label><br />
-        <input type="text" name="userId" value="@Guid.NewGuid()" style="width: 300px;" />
-    </div>
-    <br />
-
-    <div>
-        <label>Alege Tipul de Abonament (Factory Decision):</label><br />
-        <select name="planType">
+    <!-- Secțiunea 1: Factory Method -->
+    <fieldset style="margin-bottom: 20px; padding: 15px;">
+        <legend><b>1. Alege Planul (Factory Method)</b></legend>
+        <select name="planType" style="width: 100%; padding: 5px;">
             <option value="free">Free Trial (7 zile)</option>
-            <option value="premium">Premium (Plată necesară)</option>
+            <option value="premium">Premium Plan (1 lună)</option>
         </select>
-    </div>
-    <br />
+    </fieldset>
 
-    <button type="submit">Activează prin Factory</button>
+    <!-- Secțiunea 2: Abstract Factory -->
+    <fieldset style="margin-bottom: 20px; padding: 15px;">
+        <legend><b>2. Metoda de Plată (Abstract Factory)</b></legend>
+        <p><input type="radio" name="paymentType" value="google" checked> Google Pay (Digital Wallet)</p>
+        <p><input type="radio" name="paymentType" value="paypal"> PayPal (Online Transfer)</p>
+        <p><input type="radio" name="paymentType" value="card"> Credit Card (Classic Method)</p>
+    </fieldset>
+
+    <button type="submit" style="padding: 10px 20px; cursor: pointer; background-color: #007bff; color: white; border: none;">
+        Procesează Abonament
+    </button>
 </form>
 
 <hr />
 <p>
-    <b>Cum funcționează:</b> Când apeși butonul, Controller-ul nu știe ce logică să aplice.
-    El cere un Manager de la <i>SubscriptionProvider</i>, care îi dă obiectul corect creat prin <b>Factory Method</b>.
+    <i>Info:</i> Această pagină combină două pattern-uri creaționale:
+    <b>Factory Method</b> creează obiectul de activare, în timp ce
+    <b>Abstract Factory</b> creează o întreagă familie de obiecte (Procesator + Factură) compatibile cu metoda de plată aleasă.
 </p>

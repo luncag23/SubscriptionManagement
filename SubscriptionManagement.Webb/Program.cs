@@ -1,3 +1,4 @@
+using BusinessLogic.AbstractFactory;
 using BusinessLogic.Factories;
 using DAL.Abstract;
 using DAL.Concrete;
@@ -22,6 +23,9 @@ builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
 builder.Services.AddScoped<SubscriptionProvider>();
 builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
 
+builder.Services.AddScoped<BillingProvider>();
+
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
@@ -29,24 +33,38 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
 	var context = scope.ServiceProvider.GetRequiredService<SubscriptionDbContext>();
-	context.Database.EnsureCreated(); // Se asigură că DB există
+	context.Database.EnsureCreated();
 
-	// Dacă nu avem planuri, adăugăm unul
-	if (!context.SubscriptionPlans.Any())
+	// 1. Verificăm/Adăugăm Planul FREE
+	if (!context.SubscriptionPlans.Any(p => p.Name == "Free Trial Plan"))
 	{
 		context.SubscriptionPlans.Add(new Domain.Entities.SubscriptionPlan
 		{
 			Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
 			Name = "Free Trial Plan",
-			Description = "Plan de testare gratuit pentru 7 zile",
+			Description = "Acces gratuit pentru 7 zile",
 			IsActive = true,
-			MonthlyPrice = 0
+			MonthlyPrice = 0,
+			MaxStorageGB = 5
 		});
-		context.SaveChanges();
 	}
 
-	// Dacă nu avem utilizatori, adăugăm unul
-	if (!context.Users.Any())
+	// 2. Verificăm/Adăugăm Planul PREMIUM (Adobe style)
+	if (!context.SubscriptionPlans.Any(p => p.Name == "Premium Plan"))
+	{
+		context.SubscriptionPlans.Add(new Domain.Entities.SubscriptionPlan
+		{
+			Id = Guid.Parse("99999999-9999-9999-9999-999999999999"),
+			Name = "Premium Plan",
+			Description = "Acces complet la toate aplicațiile (All Apps Bundle)",
+			IsActive = true,
+			MonthlyPrice = 50.00m, // Preț de 50 RON/USD
+			MaxStorageGB = 100
+		});
+	}
+
+	// 3. Verificăm/Adăugăm Utilizatorul de test (dacă nu există)
+	if (!context.Users.Any(u => u.Email == "test@user.com"))
 	{
 		context.Users.Add(new Domain.Entities.User
 		{
@@ -55,8 +73,9 @@ using (var scope = app.Services.CreateScope())
 			FullName = "Test User",
 			JoinedDate = DateTime.Now
 		});
-		context.SaveChanges();
 	}
+
+	context.SaveChanges();
 }
 
 // Restul codului standard (Middleware, Routing, etc.)

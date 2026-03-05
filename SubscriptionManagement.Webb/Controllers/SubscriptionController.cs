@@ -22,13 +22,12 @@ namespace SubscriptionManagement.Web.Controllers
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> Subscribe(string planType)
+		public async Task<IActionResult> Subscribe(string planType, string paymentType)
 		{
 			try
 			{
-				// Controller-ul doar dă comanda și primește un DTO (DataContract)
-				var response = await _subscriptionService.SubscribeUserAsync(planType);
-
+				// Trimitem ambele alegeri către serviciu
+				var response = await _subscriptionService.SubscribeUserAsync(planType, paymentType);
 				ViewBag.Message = response.Message;
 			}
 			catch (Exception ex)
