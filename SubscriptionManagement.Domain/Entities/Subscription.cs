@@ -14,6 +14,9 @@ namespace Domain.Entities
 		public DateTime EndDate { get; set; }
 		public SubscriptionStatus Status { get; set; }
 
+		// ADAUGĂ ACEST CÂMP:
+		public string LicenseKey { get; set; }
+
 		// Referințe de navigare (utile pentru logica internă)
 		public User User { get; set; }
 		public SubscriptionPlan Plan { get; set; }

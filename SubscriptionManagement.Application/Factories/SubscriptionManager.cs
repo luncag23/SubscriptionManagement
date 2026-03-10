@@ -9,7 +9,11 @@ namespace BusinessLogic.Factories
 		protected SubscriptionManager(ISubscriptionRepository repository) => _repository = repository;
 
 		public abstract ISubscriptionActivator CreateActivator();
-		public void ProcessSubscription(Guid userId, Guid planId) => CreateActivator().Activate(userId, planId);
+		public void ProcessSubscription(Guid userId, Guid planId, string licenseKey) // <--- Adaugă parametrul
+		{
+			var activator = CreateActivator();
+			activator.Activate(userId, planId, licenseKey); // <--- Trimite-o la activator
+		}
 	}
 
 	// Creator Concret 1

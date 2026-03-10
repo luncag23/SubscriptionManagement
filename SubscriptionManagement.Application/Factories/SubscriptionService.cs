@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq; // Adăugat pentru FirstOrDefault
 using System.Text;
+using System.Threading.Tasks;
 using BusinessLogic.AbstractFactory;
+using BusinessLogic.Singleton;
+using BusinessLogic.Factories; // Asigură-te că namespace-urile sunt corecte
 using DAL.Abstract;
 using DataContract.DTOs;
 
@@ -25,8 +29,7 @@ namespace BusinessLogic.Factories
 			// 1. Luăm toate planurile din DB
 			var allPlans = await _repository.GetAllPlansAsync();
 
-			// 2. FILTRARE: Căutăm planul care conține în nume textul selectat (ex: "free" sau "premium")
-			// Folosim ToLower() pentru a fi siguri că găsește indiferent de litere mari/mici
+			// 2. Căutăm planul ales
 			var plan = allPlans.FirstOrDefault(p => p.Name.ToLower().Contains(planType.ToLower()));
 
 			// Luăm userul de test
@@ -37,21 +40,31 @@ namespace BusinessLogic.Factories
 				throw new Exception($"Planul '{planType}' nu a fost găsit în baza de date.");
 			}
 
-			// 3. FACTORY METHOD (Activarea planului corect)
+			// 1. Generăm licența o SINGURĂ dată aici (Singleton)
+			string finalLicense = LicenseGenerator.Instance.GenerateKey();
+
+			// 3. FACTORY METHOD (Activarea planului)
 			var manager = _provider.GetManager(planType);
-			manager.ProcessSubscription(user.Id, plan.Id);
+			manager.ProcessSubscription(user.Id, plan.Id, finalLicense); // <--- PASĂM CHEIA AICI
 
 			// 4. ABSTRACT FACTORY (Plată și Factură)
 			var billingFactory = _billingProvider.GetFactory(paymentType);
 			var processor = billingFactory.CreateProcessor();
 			var invoice = billingFactory.CreateInvoice();
 
-			// Acum plan.MonthlyPrice va fi 0 pentru Free și 50 pentru Premium!
-			string paymentResult = processor.ProcessPayment(plan.MonthlyPrice);
-			string invoiceResult = invoice.GenerateInvoice();
+			string paymentResult = billingFactory.CreateProcessor().ProcessPayment(plan.MonthlyPrice);
+			string invoiceResult = billingFactory.CreateInvoice().GenerateInvoice();
 
+			// 5. SINGLETON (Generare Licență Unică)
+			// Acum generăm cheia ÎNAINTE de return
+			string newLicense = LicenseGenerator.Instance.GenerateKey();
+
+			// 6. RETURN UNIC (Combinăm toate informațiile într-un singur DTO)
 			return new SubscriptionResponse
 			{
+				PlanName = plan.Name,
+				Status = "Activ",
+				LicenseKey = finalLicense, // Aceeași licență salvată în DB
 				Message = $"[Succes: {plan.Name}] {paymentResult} | {invoiceResult}"
 			};
 		}

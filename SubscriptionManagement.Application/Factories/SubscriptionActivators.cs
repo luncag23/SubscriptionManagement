@@ -13,17 +13,22 @@ namespace BusinessLogic.Factories
 		private readonly ISubscriptionRepository _repository;
 		public FreeTrialActivator(ISubscriptionRepository repository) => _repository = repository;
 
-		public void Activate(Guid userId, Guid planId)
+		public void Activate(Guid userId, Guid planId, string licenseKey)
 		{
+			// Generăm cheia folosind Singleton-ul creat anterior
+			string generatedKey = BusinessLogic.Singleton.LicenseGenerator.Instance.GenerateKey();
+
 			var sub = new Subscription
 			{
 				Id = Guid.NewGuid(),
 				UserId = userId,
 				PlanId = planId,
 				StartDate = DateTime.Now,
-				EndDate = DateTime.Now.AddDays(7),
-				Status = SubscriptionStatus.Trial
+				EndDate = DateTime.Now.AddMonths(1),
+				Status = SubscriptionStatus.Active,
+				LicenseKey = licenseKey // <--- ACUM SE SALVEAZĂ ÎN DB!
 			};
+
 			_repository.SaveSubscriptionAsync(sub).Wait();
 		}
 	}
@@ -34,18 +39,22 @@ namespace BusinessLogic.Factories
 		private readonly ISubscriptionRepository _repository;
 		public PremiumActivator(ISubscriptionRepository repository) => _repository = repository;
 
-		public void Activate(Guid userId, Guid planId)
+		public void Activate(Guid userId, Guid planId, string licenseKey)
 		{
+			// ASIGURĂ-TE CĂ GENEREZI LICENȚA ȘI AICI!
+			string key = BusinessLogic.Singleton.LicenseGenerator.Instance.GenerateKey();
+
 			var sub = new Subscription
 			{
 				Id = Guid.NewGuid(),
 				UserId = userId,
-				PlanId = planId,
+				PlanId = planId, // Folosește planId-ul primit ca argument!
 				StartDate = DateTime.Now,
 				EndDate = DateTime.Now.AddMonths(1),
-				Status = SubscriptionStatus.Active
+				Status = SubscriptionStatus.Active,
+				LicenseKey = licenseKey // <--- Folosește cheia primită de la Service!
 			};
-			_repository.SaveSubscriptionAsync(sub).Wait();
+			_repository.SaveSubscriptionAsync(sub).GetAwaiter().GetResult();
 		}
 	}
 }

@@ -1,13 +1,35 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@section Styles {
+    <link rel="stylesheet" href="~/css/home.css" />
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome to Subscription Management</h1>
-    <p>Apasă pe link-ul de mai jos pentru a testa implementarea <b>Factory Method</b>:</p>
+<section class="hero-container">
+    <span class="hero-tagline">Adobe Creative Cloud</span>
+    <h1 class="hero-main-title">Creativitate pentru toți.</h1>
+    <p class="hero-description">
+        Obține acces la peste 20 de aplicații de creație, fonturi, stocare în cloud și multe altele.
+        Alege planul care ți se potrivește și începe să creezi astăzi.
+    </p>
 
-    <!-- Link-ul către pagina de abonamente -->
-    <a asp-controller="Subscription" asp-action="Index" style="font-size: 20px; color: blue; text-decoration: underline;">
-        Gestionează Abonamente (Factory Method Demo)
-    </a>
-</div>
+    <div class="hero-actions">
+        <a asp-controller="Subscription" asp-action="Index" class="btn-primary-adobe">
+            Vezi planuri și prețuri
+        </a>
+    </div>
+</section>
+
+<section class="services-preview">
+    <div class="service-item">
+        <h3>Planuri pentru oricine</h3>
+        <p>De la fotografi entuziaști la agenții globale, avem un abonament adaptat nevoilor tale de producție digitală.</p>
+    </div>
+
+    <div class="service-item">
+        <h3>Plăți simplificate</h3>
+        <p>Integrare directă cu portofele digitale și carduri bancare pentru un flux de lucru neîntrerupt și acces instant la unelte.</p>
+    </div>
+
+    <div class="service-item">
+        <h3>Stocare inteligentă</h3>
+        <p>Sincronizează-ți proiectele pe toate dispozitivele. Începe lucrul pe desktop și finalizează-l pe tabletă sau mobil.</p>
+    </div>
+</section>

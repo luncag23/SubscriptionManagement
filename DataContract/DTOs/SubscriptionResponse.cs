@@ -11,5 +11,8 @@ namespace DataContract.DTOs
 		public string Status { get; set; } // "Active", "Trial", etc.
 		public DateTime ExpirationDate { get; set; }
 		public string Message { get; set; } // "Abonamentul tău expiră în 30 de zile"
+
+		// ADAUGĂ ACEST CÂMP: Singleton
+		public string LicenseKey { get; set; }
 	}
 }

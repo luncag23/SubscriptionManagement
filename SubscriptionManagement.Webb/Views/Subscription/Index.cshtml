@@ -1,49 +1,77 @@
-﻿@{
-    ViewData["Title"] = "Pattern Integration";
+﻿@* Referința către fișierul CSS nou *@
+@section Styles {
+    <link rel="stylesheet" href="~/css/subscription.css" />
 }
 
-<h1>Subscription Management</h1>
+<div class="subscription-body">
+    <div class="sub-card">
+        <h1>Subscription Management</h1>
 
-@if (ViewBag.Message != null)
-{
-    <div style="color: green; border: 1px solid green; padding: 10px; margin-bottom: 20px;">
-        @ViewBag.Message
+        @* Mesaje de Feedback *@
+        @if (ViewBag.Message != null)
+        {
+            <div class="alert alert-success">
+                <strong>✓ Succes!</strong> @ViewBag.Message
+
+                @* Dacă ai trimis obiectul response prin ViewBag sau Model, afișează licența *@
+                <div style="margin-top:10px; border-top:1px dashed #155724; padding-top:10px;">
+                    Codul tău de activare este: <code style="font-size:1.2rem; background:#fff; padding:2px 8px;">@ViewBag.LicenseKey</code>
+                </div>
+            </div>
+        }
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-error">
+                <strong>✕</strong> @ViewBag.Error
+            </div>
+        }
+
+        <form asp-action="Subscribe" method="post">
+
+            <!-- SECȚIUNEA 1: FACTORY METHOD -->
+            <div class="form-section">
+                <span class="pattern-badge">Pattern: Factory Method</span>
+                <label>1. Selectează Planul de Acces</label>
+                <select name="planType" class="custom-select">
+                    <option value="free">Free Trial (Acces 7 zile - 0 RON)</option>
+                    <option value="premium">Premium Plan (All Apps - 50 RON)</option>
+                </select>
+            </div>
+
+            <!-- SECȚIUNEA 2: ABSTRACT FACTORY -->
+            <div class="form-section">
+                <span class="pattern-badge">Pattern: Abstract Factory</span>
+                <label>2. Metoda de Plată & Facturare</label>
+
+                <div class="payment-grid">
+                    <label class="payment-option">
+                        <input type="radio" name="paymentType" value="google" checked>
+                        <span><b>Google Pay</b> (G-Wallet & Digital Invoice)</span>
+                    </label>
+
+                    <label class="payment-option">
+                        <input type="radio" name="paymentType" value="paypal">
+                        <span><b>PayPal</b> (Online Transfer & PayPal Receipt)</span>
+                    </label>
+
+                    <label class="payment-option">
+                        <input type="radio" name="paymentType" value="card">
+                        <span><b>Credit Card</b> (Bank Transaction & PDF Invoice)</span>
+                    </label>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-process">
+                Finalizează Abonamentul
+            </button>
+        </form>
+
+        <div class="footer-info">
+            <hr />
+            Acest proiect utilizează <b>Factory Method</b> pentru a decide strategia de activare
+            și <b>Abstract Factory</b> pentru a asigura compatibilitatea între serviciile
+            de plată și generatorii de documente fiscale.
+        </div>
     </div>
-}
-
-@if (ViewBag.Error != null)
-{
-    <div style="color: red; border: 1px solid red; padding: 10px; margin-bottom: 20px;">
-        @ViewBag.Error
-    </div>
-}
-
-<form asp-action="Subscribe" method="post">
-    <!-- Secțiunea 1: Factory Method -->
-    <fieldset style="margin-bottom: 20px; padding: 15px;">
-        <legend><b>1. Alege Planul (Factory Method)</b></legend>
-        <select name="planType" style="width: 100%; padding: 5px;">
-            <option value="free">Free Trial (7 zile)</option>
-            <option value="premium">Premium Plan (1 lună)</option>
-        </select>
-    </fieldset>
-
-    <!-- Secțiunea 2: Abstract Factory -->
-    <fieldset style="margin-bottom: 20px; padding: 15px;">
-        <legend><b>2. Metoda de Plată (Abstract Factory)</b></legend>
-        <p><input type="radio" name="paymentType" value="google" checked> Google Pay (Digital Wallet)</p>
-        <p><input type="radio" name="paymentType" value="paypal"> PayPal (Online Transfer)</p>
-        <p><input type="radio" name="paymentType" value="card"> Credit Card (Classic Method)</p>
-    </fieldset>
-
-    <button type="submit" style="padding: 10px 20px; cursor: pointer; background-color: #007bff; color: white; border: none;">
-        Procesează Abonament
-    </button>
-</form>
-
-<hr />
-<p>
-    <i>Info:</i> Această pagină combină două pattern-uri creaționale:
-    <b>Factory Method</b> creează obiectul de activare, în timp ce
-    <b>Abstract Factory</b> creează o întreagă familie de obiecte (Procesator + Factură) compatibile cu metoda de plată aleasă.
-</p>
+</div>

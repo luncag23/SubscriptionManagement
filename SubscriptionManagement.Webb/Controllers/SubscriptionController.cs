@@ -29,6 +29,7 @@ namespace SubscriptionManagement.Web.Controllers
 				// Trimitem ambele alegeri către serviciu
 				var response = await _subscriptionService.SubscribeUserAsync(planType, paymentType);
 				ViewBag.Message = response.Message;
+				ViewBag.LicenseKey = response.LicenseKey; // Trimite licența către HTML
 			}
 			catch (Exception ex)
 			{

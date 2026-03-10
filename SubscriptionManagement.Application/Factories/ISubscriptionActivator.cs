@@ -7,6 +7,6 @@ namespace BusinessLogic.Factories
 	//  Interfata principala
 	public interface ISubscriptionActivator
 	{
-		void Activate(Guid userId, Guid planId);
+		void Activate(Guid userId, Guid planId, string licenseKey);
 	}
 }
