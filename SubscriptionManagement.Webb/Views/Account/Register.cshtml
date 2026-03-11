@@ -1,0 +1,35 @@
+﻿@section Styles {
+    <link rel="stylesheet" href="~/css/account.css" />
+}
+
+<div class="account-container">
+    <div class="account-header">
+        <h2>Creează un cont</h2>
+        <p>Alătură-te comunității creative Adobe</p>
+    </div>
+
+    @if (ViewBag.Error != null)
+    {
+        <div style="color: #dc3545; background: #f8d7da; padding: 10px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+            @ViewBag.Error
+        </div>
+    }
+
+    <form asp-action="Register" method="post">
+        <div class="form-group">
+            <label>Nume Complet</label>
+            <input type="text" name="fullName" class="form-control-adobe" placeholder="ex: Ion Popescu" required />
+        </div>
+
+        <div class="form-group">
+            <label>Adresa de Email</label>
+            <input type="email" name="email" class="form-control-adobe" placeholder="nume@exemplu.com" required />
+        </div>
+
+        <button type="submit" class="btn-account">Sign Up</button>
+    </form>
+
+    <div class="account-footer">
+        Ai deja un cont? <a asp-action="Login">Loghează-te aici</a>
+    </div>
+</div>

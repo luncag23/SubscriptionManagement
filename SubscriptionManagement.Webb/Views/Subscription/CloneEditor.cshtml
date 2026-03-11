@@ -1,0 +1,41 @@
+﻿@model Domain.Entities.SubscriptionPlan
+@section Styles {
+    <link rel="stylesheet" href="~/css/subscription.css" />
+}
+
+<div class="sub-card" style="max-width: 500px; margin: 50px auto;">
+    <span class="pattern-badge">Pattern: Prototype</span>
+    <h2>Configurare Plan Nou</h2>
+    <p style="color: #666;">Modifică datele copiate din planul original.</p>
+    <hr />
+
+    <form asp-action="ConfirmClone" method="post">
+        <div class="form-section">
+            <label>Nume Nou Plan</label>
+            <input type="text" asp-for="Name" class="custom-select" required />
+        </div>
+
+        <div class="form-section">
+            <label>Preț Nou (RON)</label>
+            <input type="number" asp-for="MonthlyPrice" class="custom-select" step="0.01" />
+        </div>
+
+        <div class="form-section">
+            <label>Capacitate Stocare (GB)</label>
+            <input type="number" asp-for="MaxStorageGB" class="custom-select" />
+        </div>
+
+        <div class="form-section">
+            <label>Descriere</label>
+            <textarea asp-for="Description" class="custom-select" rows="3"></textarea>
+        </div>
+
+        @* Păstrăm starea activă din prototip *@
+        <input type="hidden" asp-for="IsActive" />
+
+        <button type="submit" class="btn-process">
+            Creează Plan din Prototip
+        </button>
+        <a asp-action="Index" style="display: block; text-align: center; margin-top: 15px; color: #666;">Anulează</a>
+    </form>
+</div>

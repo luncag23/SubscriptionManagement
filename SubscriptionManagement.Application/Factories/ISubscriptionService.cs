@@ -7,8 +7,7 @@ namespace BusinessLogic.Factories
 {
 	public interface ISubscriptionService
 	{
-		// Aceasta este metoda principală pe care o va apela UI-ul
-		Task<SubscriptionResponse> SubscribeUserAsync(string planType, string paymentType);
-
+		// Adăugăm Guid userId la final
+		Task<SubscriptionResponse> SubscribeUserAsync(string planType, string paymentType, Guid userId);
 	}
 }

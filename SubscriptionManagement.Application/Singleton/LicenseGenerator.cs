@@ -6,13 +6,13 @@ namespace BusinessLogic.Singleton
 	// "sealed" previne moștenirea clasei, ceea ce este recomandat pentru Singleton
 	public sealed class LicenseGenerator
 	{
-		// 1. Instanța unică este păstrată într-un câmp static
-		// Folosim Lazy<T> pentru a asigura "Thread Safety" (siguranță la acces simultan)
+		// Instanța unică este păstrată într-un câmp static
+		// Lazy<T> pentru a asigura "Thread Safety" (siguranță la acces simultan)
 		// și "Lazy Initialization" (crearea obiectului doar când e prima dată nevoie de el)
 		private static readonly Lazy<LicenseGenerator> _instance =
 			new Lazy<LicenseGenerator>(() => new LicenseGenerator());
 
-		// 2. Metoda publică de acces la instanță (Punctul Global de Acces)
+		// Metoda publică de acces la instanță (Punctul Global de Acces)
 		public static LicenseGenerator Instance => _instance.Value;
 
 		// 3. CONSTRUCTOR PRIVAT - Nimeni din exterior nu poate face "new LicenseGenerator()"

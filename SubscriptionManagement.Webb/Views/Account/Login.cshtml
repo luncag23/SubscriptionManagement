@@ -1,0 +1,37 @@
+﻿@section Styles {
+    <link rel="stylesheet" href="~/css/account.css" />
+}
+
+<div class="account-container">
+    <div class="account-header">
+        <h2>Bine ai revenit</h2>
+        <p>Introdu email-ul pentru a accesa contul</p>
+    </div>
+
+    @if (ViewBag.Message != null)
+    {
+        <div style="color: #155724; background: #d4edda; padding: 10px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+            @ViewBag.Message
+        </div>
+    }
+
+    @if (ViewBag.Error != null)
+    {
+        <div style="color: #dc3545; background: #f8d7da; padding: 10px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+            @ViewBag.Error
+        </div>
+    }
+
+    <form asp-action="Login" method="post">
+        <div class="form-group">
+            <label>Adresa de Email</label>
+            <input type="email" name="email" class="form-control-adobe" placeholder="nume@exemplu.com" required />
+        </div>
+
+        <button type="submit" class="btn-account">Log In</button>
+    </form>
+
+    <div class="account-footer">
+        Nu ai un cont? <a asp-action="Register">Înregistrează-te acum</a>
+    </div>
+</div>

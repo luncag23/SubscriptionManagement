@@ -1,0 +1,31 @@
+﻿@model Domain.Entities.UserProfile
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/subscription.css" />
+}
+<div class="sub-card" style="max-width: 500px; margin: 50px auto;">
+    <h2>Editează Profilul</h2>
+    <hr />
+
+    <form asp-action="Save" method="post">
+        <div class="form-section">
+            <label>Nume Afișat</label>
+            <input type="text" name="displayName" value="@Model.DisplayName" class="custom-select" />
+        </div>
+
+        <div class="form-section">
+            <label>Bio (Descriere)</label>
+            <textarea name="bio" class="custom-select" rows="3">@Model.Bio</textarea>
+        </div>
+
+        <div class="form-section">
+            <label>Temă Interfață</label>
+            <select name="theme" class="custom-select">
+                <option value="Light" selected="@(Model.Theme == "Light")">Light Mode</option>
+                <option value="Dark" selected="@(Model.Theme == "Dark")">Dark Mode</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn-process">Salvează Modificările</button>
+    </form>
+</div>

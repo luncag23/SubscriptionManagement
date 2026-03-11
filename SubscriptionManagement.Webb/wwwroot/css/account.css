@@ -1,0 +1,75 @@
+﻿/* wwwroot/css/account.css */
+.account-container {
+	max-width: 450px;
+	margin: 80px auto;
+	background: white;
+	padding: 40px;
+	border-radius: 12px;
+	box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+.account-header {
+	text-align: center;
+	margin-bottom: 30px;
+}
+
+	.account-header h2 {
+		font-weight: 800;
+		color: #2C2C2C;
+	}
+
+.form-group {
+	margin-bottom: 20px;
+}
+
+	.form-group label {
+		display: block;
+		margin-bottom: 8px;
+		font-weight: 600;
+		color: #444;
+	}
+
+.form-control-adobe {
+	width: 100%;
+	padding: 12px 15px;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	font-size: 1rem;
+	transition: border-color 0.3s;
+}
+
+	.form-control-adobe:focus {
+		border-color: #1473E6;
+		outline: none;
+		box-shadow: 0 0 0 3px rgba(20, 115, 230, 0.1);
+	}
+
+.btn-account {
+	width: 100%;
+	padding: 14px;
+	background-color: #1473E6;
+	color: white;
+	border: none;
+	border-radius: 25px;
+	font-weight: 600;
+	font-size: 1.1rem;
+	cursor: pointer;
+	transition: background 0.3s;
+}
+
+	.btn-account:hover {
+		background-color: #0d59b3;
+	}
+
+.account-footer {
+	margin-top: 25px;
+	text-align: center;
+	font-size: 0.9rem;
+	color: #666;
+}
+
+	.account-footer a {
+		color: #1473E6;
+		text-decoration: none;
+		font-weight: 600;
+	}

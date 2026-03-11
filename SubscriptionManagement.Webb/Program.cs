@@ -1,69 +1,77 @@
 using BusinessLogic.AbstractFactory;
+using BusinessLogic.Builder;
 using BusinessLogic.Factories;
 using DAL.Abstract;
 using DAL.Concrete;
 using Microsoft.EntityFrameworkCore;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Configurarea Entity Framework Core cu SQL Server
+// --- 1. PERSISTENȚĂ (Baza de Date) ---
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<SubscriptionDbContext>(options =>
 	options.UseSqlServer(connectionString));
 
-// 2. Înregistrarea Repository-ului (Dependency Injection)
-// În Program.cs adaugă:
 builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
 
+// --- 2. SERVICII ȘI PATTERN-URI (Business Logic) ---
 
-// 3. Tot aici vom înregistra și Service-ul de Business mai târziu
-// builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
-// 3. Înregistrează Provider-ul (Aceasta este linia care rezolvă eroarea ta!)
+// Pattern: Factory Method
 builder.Services.AddScoped<SubscriptionProvider>();
 builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
 
+// Pattern: Abstract Factory
 builder.Services.AddScoped<BillingProvider>();
 
+// Pattern: Builder
+builder.Services.AddScoped<IUserProfileBuilder, UserProfileBuilder>();
+builder.Services.AddScoped<ProfileDirector>();
+
+// --- 3. SECURITATE (Autentificare) ---
+builder.Services.AddAuthentication("CookieAuth")
+	.AddCookie("CookieAuth", config => {
+		config.Cookie.Name = "User.Auth";
+		config.LoginPath = "/Account/Login"; // Unde trimitem userul dacă nu e logat
+		config.AccessDeniedPath = "/Home/AccessDenied";
+	});
 
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
+// --- 4. SEEDING DINAMIC (Populare DB la pornire) ---
 using (var scope = app.Services.CreateScope())
 {
 	var context = scope.ServiceProvider.GetRequiredService<SubscriptionDbContext>();
+	// context.Database.Migrate(); // Opțional: rulează migrările automat
 	context.Database.EnsureCreated();
 
-	// 1. Verificăm/Adăugăm Planul FREE
-	if (!context.SubscriptionPlans.Any(p => p.Name == "Free Trial Plan"))
+	// Adăugare Planuri
+	if (!context.SubscriptionPlans.Any())
 	{
-		context.SubscriptionPlans.Add(new Domain.Entities.SubscriptionPlan
-		{
-			Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
-			Name = "Free Trial Plan",
-			Description = "Acces gratuit pentru 7 zile",
-			IsActive = true,
-			MonthlyPrice = 0,
-			MaxStorageGB = 5
-		});
+		context.SubscriptionPlans.AddRange(
+			new Domain.Entities.SubscriptionPlan
+			{
+				Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+				Name = "Free Trial Plan",
+				Description = "Acces gratuit pentru 7 zile",
+				IsActive = true,
+				MonthlyPrice = 0,
+				MaxStorageGB = 20
+			},
+			new Domain.Entities.SubscriptionPlan
+			{
+				Id = Guid.Parse("99999999-9999-9999-9999-999999999999"),
+				Name = "Premium Plan",
+				Description = "Acces complet la toate aplicațiile (All Apps Bundle)",
+				IsActive = true,
+				MonthlyPrice = 1000.00m,
+				MaxStorageGB = 100
+			}
+		);
 	}
 
-	// 2. Verificăm/Adăugăm Planul PREMIUM (Adobe style)
-	if (!context.SubscriptionPlans.Any(p => p.Name == "Premium Plan"))
-	{
-		context.SubscriptionPlans.Add(new Domain.Entities.SubscriptionPlan
-		{
-			Id = Guid.Parse("99999999-9999-9999-9999-999999999999"),
-			Name = "Premium Plan",
-			Description = "Acces complet la toate aplicațiile (All Apps Bundle)",
-			IsActive = true,
-			MonthlyPrice = 50.00m, // Preț de 50 RON/USD
-			MaxStorageGB = 100
-		});
-	}
-
-	// 3. Verificăm/Adăugăm Utilizatorul de test (dacă nu există)
+	// Utilizator de test (opțional, acum că avem Register)
 	if (!context.Users.Any(u => u.Email == "test@user.com"))
 	{
 		context.Users.Add(new Domain.Entities.User
@@ -78,7 +86,7 @@ using (var scope = app.Services.CreateScope())
 	context.SaveChanges();
 }
 
-// Restul codului standard (Middleware, Routing, etc.)
+// --- 5. MIDDLEWARE PIPELINE (Ordinea este critică!) ---
 if (!app.Environment.IsDevelopment())
 {
 	app.UseExceptionHandler("/Home/Error");
@@ -87,7 +95,11 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
 app.UseRouting();
+
+// !!! IMPORTANT: Autentificarea trebuie să fie ÎNAINTE de Autorizare !!!
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

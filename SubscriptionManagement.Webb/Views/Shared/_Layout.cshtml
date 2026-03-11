@@ -29,7 +29,33 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
                     </ul>
+                    <ul class="navbar-nav ms-auto">
+                        @* ms-auto împinge elementele în dreapta *@
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark font-weight-bold" asp-controller="Profile" asp-action="Edit">
+                                    👋 Bună, @User.Identity.Name
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline">
+                                    <button type="submit" class="nav-link btn btn-link text-danger" style="text-decoration:none">Logout</button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-primary font-weight-bold" asp-controller="Account" asp-action="Register">Sign Up</a>
+                            </li>
+                        }
+                    </ul>
                 </div>
+
             </div>
         </nav>
     </header>
