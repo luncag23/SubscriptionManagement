@@ -1,4 +1,5 @@
 using BusinessLogic.AbstractFactory;
+using BusinessLogic.Adapters;
 using BusinessLogic.Builder;
 using BusinessLogic.Factories;
 using DAL.Abstract;
@@ -26,6 +27,9 @@ builder.Services.AddScoped<BillingProvider>();
 // Pattern: Builder
 builder.Services.AddScoped<IUserProfileBuilder, UserProfileBuilder>();
 builder.Services.AddScoped<ProfileDirector>();
+
+// Această metodă instanțiază automat HttpClient și îl dă adaptorului
+builder.Services.AddHttpClient<ICurrencyConverter, CurrencyAdapter>();
 
 // --- 3. SECURITATE (Autentificare) ---
 builder.Services.AddAuthentication("CookieAuth")

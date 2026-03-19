@@ -78,5 +78,7 @@ namespace DAL.Concrete
 			_context.SubscriptionPlans.Add(plan);
 			await _context.SaveChangesAsync();
 		}
+
+
 	}
 }

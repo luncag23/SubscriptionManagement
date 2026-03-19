@@ -4,6 +4,7 @@ using System.Linq; // Adăugat pentru FirstOrDefault
 using System.Text;
 using System.Threading.Tasks;
 using BusinessLogic.AbstractFactory;
+using BusinessLogic.Adapters;
 using BusinessLogic.Factories; // Asigură-te că namespace-urile sunt corecte
 using BusinessLogic.Singleton;
 using DAL.Abstract;
@@ -17,12 +18,14 @@ namespace BusinessLogic.Factories
 		private readonly ISubscriptionRepository _repository;
 		private readonly SubscriptionProvider _provider;
 		private readonly BillingProvider _billingProvider;
+		private readonly ICurrencyConverter _currencyAdapter;
 
-		public SubscriptionService(ISubscriptionRepository repository, SubscriptionProvider provider, BillingProvider billingProvider)
+		public SubscriptionService(ISubscriptionRepository repository, SubscriptionProvider provider, BillingProvider billingProvider, ICurrencyConverter currencyAdapter)
 		{
 			_repository = repository;
 			_provider = provider;
 			_billingProvider = billingProvider;
+			_currencyAdapter = currencyAdapter;
 		}
 
 		public async Task<SubscriptionResponse> SubscribeUserAsync(string planName, string paymentType, Guid userId)
@@ -52,12 +55,19 @@ namespace BusinessLogic.Factories
 			string paymentResult = billingFactory.CreateProcessor().ProcessPayment(plan.MonthlyPrice);
 			string invoiceResult = billingFactory.CreateInvoice().GenerateInvoice();
 
+			// 3. UTILIZAREA ADAPTORULUI
+			// În interiorul metodei SubscribeUserAsync
+			decimal priceInEur = await _currencyAdapter.ConvertToEur(plan.MonthlyPrice);
+
+
 			return new SubscriptionResponse
 			{
 				PlanName = plan.Name,
 				Status = "Activ",
 				LicenseKey = finalLicense,
-				Message = $"[Succes: {plan.Name}] {paymentResult} | {invoiceResult}"
+				Message = $"[Succes: {plan.Name}] {paymentResult} | Total: {priceInEur:F2}€ (echivalentul a {plan.MonthlyPrice} RON) | {invoiceResult}"
+
+				
 			};
 		}
 	}
