@@ -1,0 +1,50 @@
+﻿@model Domain.Entities.CreativeApp
+@{
+    var availableApps = ViewBag.AvailableApps as List<Domain.Entities.CreativeApp>;
+    var currentIds = ViewBag.CurrentChildrenIds as List<Guid>;
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/subscription.css" />
+}
+
+<div class="sub-card" style="max-width: 650px; margin: 50px auto;">
+    <span class="pattern-badge">Composite Configurator</span>
+    <h2>Configurare: @Model.Name</h2>
+    <p style="color:#666">Selectează aplicațiile care formează acest pachet.</p>
+    <hr />
+
+    <form asp-action="EditBundle" method="post">
+        <input type="hidden" name="id" value="@Model.Id" />
+
+        <div class="form-section">
+            <label>Nume Pachet</label>
+            <input type="text" name="name" value="@Model.Name" class="custom-select" required />
+        </div>
+
+        <div class="form-section" style="background: #f8f9fa; padding: 20px; border-radius: 12px; border: 1px solid #eee;">
+            <label style="margin-bottom:15px; display:block"><b>Aplicații disponibile (Leafs):</b></label>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                @if (availableApps != null && availableApps.Any())
+                {
+                    foreach (var app in availableApps)
+                    {
+                        <label style="display: flex; align-items: center; gap: 10px; cursor:pointer; background:white; padding:10px; border-radius:8px; border:1px solid #ddd;">
+                            <input type="checkbox" name="selectedAppIds" value="@app.Id"
+                                   @(currentIds != null && currentIds.Contains(app.Id) ? "checked" : "")
+                                   style="width:18px; height:18px;" />
+                            <span>@app.Name <br /><small style="color:#1473E6">@app.BasePrice RON</small></span>
+                        </label>
+                    }
+                }
+                else
+                {
+                    <p style="grid-column: span 2; color:#999">Nu există aplicații individuale disponibile.</p>
+                }
+            </div>
+        </div>
+
+        <button type="submit" class="adobe-btn adobe-btn-primary w-100" style="margin-top:20px;">Salvează Pachetul</button>
+        <a asp-action="Catalog" style="display:block; text-align:center; margin-top:15px; color:#666">Înapoi la Catalog</a>
+    </form>
+</div>

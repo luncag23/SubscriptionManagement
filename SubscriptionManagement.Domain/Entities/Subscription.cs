@@ -9,16 +9,16 @@ namespace Domain.Entities
 	{
 		public Guid Id { get; set; }
 		public Guid UserId { get; set; }
-		public Guid PlanId { get; set; }
+
+		// SCHIMBĂM AICI: În loc de PlanId, folosim AppId (care poate fi App sau Bundle)
+		public Guid AppId { get; set; }
+		public CreativeApp App { get; set; } // Referință către Composite element
+
 		public DateTime StartDate { get; set; }
 		public DateTime EndDate { get; set; }
-		public SubscriptionStatus Status { get; set; }
-
-		// ADAUGĂ ACEST CÂMP:
 		public string LicenseKey { get; set; }
+		public DataContract.Enums.SubscriptionStatus Status { get; set; }
 
-		// Referințe de navigare (utile pentru logica internă)
 		public User User { get; set; }
-		public SubscriptionPlan Plan { get; set; }
 	}
 }

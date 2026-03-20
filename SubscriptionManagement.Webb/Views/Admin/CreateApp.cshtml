@@ -1,0 +1,21 @@
+﻿@section Styles {
+    <link rel="stylesheet" href="~/css/subscription.css" />
+}
+
+<div class="sub-card" style="max-width: 500px; margin: 50px auto;">
+    <h2>🎨 Adaugă Aplicație</h2>
+    <p style="color:#666">Creează un element individual (ex: Photoshop).</p>
+    <hr />
+    <form asp-action="CreateApp" method="post">
+        <div class="form-section">
+            <label>Nume Aplicație</label>
+            <input type="text" name="name" class="custom-select" required placeholder="ex: After Effects" />
+        </div>
+        <div class="form-section">
+            <label>Preț de Bază (RON)</label>
+            <input type="number" name="price" class="custom-select" step="0.01" required />
+        </div>
+        <button type="submit" class="adobe-btn adobe-btn-primary w-100">Salvează Aplicația</button>
+        <a asp-action="Catalog" style="display:block; text-align:center; margin-top:15px; color:#666">Anulează</a>
+    </form>
+</div>

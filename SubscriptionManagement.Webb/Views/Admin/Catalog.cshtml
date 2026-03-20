@@ -1,0 +1,98 @@
+﻿@model IEnumerable<Domain.Entities.CreativeApp>
+@{
+    ViewData["Title"] = "Catalog Admin";
+    var bundles = ViewBag.CalculatedBundles as IEnumerable<dynamic>;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/subscription.css" />
+    <style>
+        .admin-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .item-row {
+            border-bottom: 1px solid #eee;
+            padding: 12px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .price-badge {
+            background: #f0f7ff;
+            color: #1473E6;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+    </style>
+}
+
+<div class="subscription-body">
+    <div class="text-center mb-4">
+        <span class="pattern-badge">Composite Pattern Management</span>
+        <h1>Management Resurse Adobe</h1>
+    </div>
+
+    <div class="admin-grid">
+        <!-- COLOANA STÂNGA: APLICAȚII -->
+        <div class="sub-card" style="margin:0">
+            <div style="display:flex; justify-content:space-between; align-items:center">
+                <h3>🎨 Aplicații Individuale</h3>
+                <a asp-action="CreateApp" class="adobe-btn adobe-btn-primary" style="padding: 5px 15px; font-size: 0.8rem;">+ Nouă</a>
+            </div>
+            <hr />
+            @foreach (var app in Model)
+            {
+                <div class="item-row">
+                    <span><b>@app.Name</b></span>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span class="price-badge">@app.BasePrice.ToString("F2") RON</span>
+                        <a asp-action="EditApp" asp-route-id="@app.Id" title="Editează">✏️</a>
+
+                        @* Buton Ștergere *@
+                        <form asp-action="DeleteElement" asp-route-id="@app.Id" method="post" onsubmit="return confirm('Sigur ștergi această aplicație?');">
+                            <button type="submit" style="border:none; background:none; cursor:pointer; padding:0;">🗑️</button>
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- COLOANA DREAPTA: PACHETE -->
+        <div class="sub-card" style="margin:0; border-top: 4px solid #1473E6;">
+            <div style="display:flex; justify-content:space-between; align-items:center">
+                <h3>📦 Pachete (Composite)</h3>
+                <a asp-action="CreateBundle" class="adobe-btn adobe-btn-outline" style="padding: 5px 15px; font-size: 0.8rem;">+ Pachet</a>
+            </div>
+            <hr />
+            @if (bundles != null && bundles.Any())
+            {
+                @foreach (var b in bundles)
+                {
+                    <div class="item-row">
+                        <span>🎁 <b>@b.Name</b></span>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <span class="price-badge" style="background:#e6fffa; color:#2c7a7b">@b.Price.ToString("F2") RON</span>
+                            <a asp-action="EditBundle" asp-route-id="@b.Id" title="Configurează">⚙️</a>
+
+                            @* Buton Ștergere *@
+                            <form asp-action="DeleteElement" asp-route-id="@b.Id" method="post" onsubmit="return confirm('Sigur ștergi acest pachet? Aplicațiile din interior nu vor fi șterse.');">
+                                <button type="submit" style="border:none; background:none; cursor:pointer; padding:0;">🗑️</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <p style="color:#999; text-align:center; padding:20px;">Nu există pachete create.</p>
+            }
+        </div>
+    </div>
+</div>

@@ -1,85 +1,142 @@
-﻿/* wwwroot/css/home.css */
-:root {
-	--adobe-black: #000000;
+﻿:root {
 	--adobe-blue: #1473E6;
-	--text-muted: #656565;
-	--bg-gray: #f9f9f9;
+	--adobe-red: #EB1000;
+	--dark-bg: #2c2c2c;
+	--light-gray: #f8f9fa;
+	--card-shadow: 0 4px 20px rgba(0,0,0,0.08);
 }
 
-.hero-container {
-	padding: 120px 20px;
+/* Container principal */
+.page-container {
+	padding: 40px 5%;
 	background-color: white;
-	text-align: center;
 }
 
-.hero-tagline {
-	color: var(--adobe-blue);
-	font-weight: 700;
-	letter-spacing: 1.5px;
-	text-transform: uppercase;
-	font-size: 0.9rem;
+/* Titluri */
+.section-title {
+	font-weight: 800;
+	font-size: 2.2rem;
+	margin-bottom: 30px;
+	color: #222;
+}
+
+/* Grid-ul pentru produse */
+.product-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+	gap: 25px;
+	margin-bottom: 50px;
+}
+
+/* Card-ul de produs (Leaf) */
+.adobe-card {
+	background: white;
+	border-radius: 16px;
+	padding: 25px;
+	border: 1px solid #eee;
+	transition: all 0.3s ease;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	box-shadow: var(--card-shadow);
+}
+
+	.adobe-card:hover {
+		transform: translateY(-5px);
+		border-color: var(--adobe-blue);
+	}
+
+/* Card-ul de Pachet (Composite) */
+.bundle-card {
+	background: linear-gradient(145deg, #ffffff, #f0f7ff);
+	border-left: 6px solid var(--adobe-blue);
+}
+
+/* Iconițe / Emojis */
+.app-icon {
+	font-size: 2.5rem;
 	margin-bottom: 15px;
 	display: block;
 }
 
+/* Tipografie în card */
+.product-name {
+	font-weight: 700;
+	font-size: 1.25rem;
+	margin-bottom: 8px;
+	color: #111;
+}
+
+.product-price {
+	font-size: 1.4rem;
+	font-weight: 800;
+	color: var(--adobe-blue);
+	margin: 15px 0;
+}
+
+/* Butoane stilizate */
+.adobe-btn {
+	display: inline-block;
+	padding: 10px 20px;
+	border-radius: 20px;
+	font-weight: 600;
+	text-decoration: none;
+	text-align: center;
+	transition: 0.2s;
+	border: none;
+	cursor: pointer;
+}
+
+.adobe-btn-primary {
+	background-color: var(--adobe-blue);
+	color: white !important;
+}
+
+	.adobe-btn-primary:hover {
+		background-color: #0d5bb5;
+	}
+
+.adobe-btn-outline {
+	border: 1.5px solid var(--adobe-blue);
+	color: var(--adobe-blue) !important;
+	background: transparent;
+}
+
+	.adobe-btn-outline:hover {
+		background: #f0f7ff;
+	}
+
+/* Badge pentru pachete */
+.promo-badge {
+	background: var(--adobe-blue);
+	color: white;
+	font-size: 0.7rem;
+	padding: 4px 10px;
+	border-radius: 10px;
+	text-transform: uppercase;
+	width: fit-content;
+	margin-bottom: 10px;
+}
+
+/* Ajustări pentru centrare pe Home */
 .hero-main-title {
-	font-size: 4rem;
 	font-weight: 800;
 	line-height: 1.1;
-	margin-bottom: 25px;
-	color: var(--adobe-black);
+	color: #000;
 }
 
 .hero-description {
-	font-size: 1.4rem;
-	color: var(--text-muted);
-	max-width: 750px;
-	margin: 0 auto 40px;
+	font-size: 1.25rem;
+	color: #656565;
 	line-height: 1.5;
 }
 
-.btn-primary-adobe {
-	background-color: var(--adobe-blue);
-	color: white;
-	padding: 14px 35px;
-	border-radius: 25px;
-	font-weight: 600;
-	text-decoration: none;
-	transition: all 0.3s;
-	display: inline-block;
-	border: 2px solid var(--adobe-blue);
+/* Forțăm grid-ul să fie centrat dacă sunt puține elemente */
+.product-grid {
+	justify-content: center;
 }
 
-	.btn-primary-adobe:hover {
-		background-color: #0d59b3;
-		color: white;
-		transform: scale(1.05);
-	}
-
-.services-preview {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-	gap: 40px;
-	padding: 80px 10%;
-	background-color: var(--bg-gray);
-}
-
-.service-item {
-	text-align: left;
-}
-
-	.service-item h3 {
-		font-weight: 700;
-		margin-bottom: 15px;
-	}
-
-	.service-item p {
-		color: var(--text-muted);
-		line-height: 1.6;
-	}
-
-.service-icon {
-	width: 50px;
-	height: 50px;
-	margin-bottom: 20px;
+/* Eliminăm marginea implicită a footer-ului care poate strica designul */
+footer {
+	margin-top: 50px;
 }

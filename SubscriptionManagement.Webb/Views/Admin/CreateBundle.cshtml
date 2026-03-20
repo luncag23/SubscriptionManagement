@@ -1,0 +1,16 @@
+﻿@section Styles {
+    <link rel="stylesheet" href="~/css/subscription.css" />
+}
+
+<div class="sub-card" style="max-width: 500px; margin: 50px auto;">
+    <h2>📦 Creează Pachet Nou</h2>
+    <p style="color:#666">După salvare, vei alege ce aplicații conține acest pachet.</p>
+    <hr />
+    <form asp-action="CreateBundle" method="post">
+        <div class="form-section">
+            <label>Nume Pachet (ex: All Apps Bundle)</label>
+            <input type="text" name="name" class="custom-select" required placeholder="Nume pachet..." />
+        </div>
+        <button type="submit" class="adobe-btn adobe-btn-primary w-100">Continuă la selectare aplicații →</button>
+    </form>
+</div>

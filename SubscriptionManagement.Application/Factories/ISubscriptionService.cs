@@ -8,6 +8,6 @@ namespace BusinessLogic.Factories
 	public interface ISubscriptionService
 	{
 		// Adăugăm Guid userId la final
-		Task<SubscriptionResponse> SubscribeUserAsync(string planType, string paymentType, Guid userId);
+		Task<SubscriptionResponse> SubscribeUserAsync(Guid appId, string accessType, string paymentType, Guid userId);
 	}
 }

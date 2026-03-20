@@ -2,31 +2,35 @@
 
 namespace BusinessLogic.Factories
 {
-	//Creator principal
 	public abstract class SubscriptionManager
 	{
 		protected readonly ISubscriptionRepository _repository;
 		protected SubscriptionManager(ISubscriptionRepository repository) => _repository = repository;
 
 		public abstract ISubscriptionActivator CreateActivator();
-		public void ProcessSubscription(Guid userId, Guid planId, string licenseKey) // <--- Adaugă parametrul
+
+		public void ProcessSubscription(Guid userId, Guid appId, string licenseKey)
 		{
 			var activator = CreateActivator();
-			activator.Activate(userId, planId, licenseKey); // <--- Trimite-o la activator
+			activator.Activate(userId, appId, licenseKey);
 		}
 	}
 
-	// Creator Concret 1
 	public class FreeTrialManager : SubscriptionManager
 	{
 		public FreeTrialManager(ISubscriptionRepository repository) : base(repository) { }
 		public override ISubscriptionActivator CreateActivator() => new FreeTrialActivator(_repository);
 	}
 
-	// Creaotor Concret 2
-	public class PremiumSubscriptionManager : SubscriptionManager
+	public class MonthlySubscriptionManager : SubscriptionManager
 	{
-		public PremiumSubscriptionManager(ISubscriptionRepository repository) : base(repository) { }
-		public override ISubscriptionActivator CreateActivator() => new PremiumActivator(_repository);
+		public MonthlySubscriptionManager(ISubscriptionRepository repository) : base(repository) { }
+		public override ISubscriptionActivator CreateActivator() => new MonthlyActivator(_repository);
+	}
+
+	public class AnnualSubscriptionManager : SubscriptionManager
+	{
+		public AnnualSubscriptionManager(ISubscriptionRepository repository) : base(repository) { }
+		public override ISubscriptionActivator CreateActivator() => new AnnualActivator(_repository);
 	}
 }

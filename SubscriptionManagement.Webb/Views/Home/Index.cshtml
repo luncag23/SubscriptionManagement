@@ -1,35 +1,44 @@
-﻿@section Styles {
+﻿@model IEnumerable<Domain.Entities.CreativeApp>
+@section Styles {
     <link rel="stylesheet" href="~/css/home.css" />
 }
 
-<section class="hero-container">
-    <span class="hero-tagline">Adobe Creative Cloud</span>
-    <h1 class="hero-main-title">Creativitate pentru toți.</h1>
-    <p class="hero-description">
-        Obține acces la peste 20 de aplicații de creație, fonturi, stocare în cloud și multe altele.
-        Alege planul care ți se potrivește și începe să creezi astăzi.
-    </p>
+<div class="page-container">
+    <!-- HERO SECTION -->
+    <section class="hero-container" style="padding: 80px 0; text-align: center;">
+        <span class="hero-tagline" style="color: #1473E6; font-weight: 700; text-transform: uppercase; font-size: 0.9rem;">Adobe Creative Cloud</span>
+        <h1 class="hero-main-title" style="font-size: 3.5rem; margin-top: 10px;">Creativitate pentru toți.</h1>
+        <p class="hero-description" style="max-width: 700px; margin: 20px auto;">
+            Obține acces la peste 20 de aplicații de creație, fonturi, stocare în cloud și multe altele.
+            Începe călătoria ta creativă astăzi.
+        </p>
 
-    <div class="hero-actions">
-        <a asp-controller="Subscription" asp-action="Index" class="btn-primary-adobe">
-            Vezi planuri și prețuri
-        </a>
-    </div>
-</section>
+        <div class="hero-actions" style="margin-top: 30px;">
+            <a asp-action="Products" class="adobe-btn adobe-btn-primary" style="padding: 15px 40px; border-radius: 30px;">
+                Descoperă toate produsele →
+            </a>
+        </div>
+    </section>
 
-<section class="services-preview">
-    <div class="service-item">
-        <h3>Planuri pentru oricine</h3>
-        <p>De la fotografi entuziaști la agenții globale, avem un abonament adaptat nevoilor tale de producție digitală.</p>
+    <!-- FEATURED APPS SECTION -->
+    <div style="margin-top: 50px;">
+        <h2 class="section-title" style="text-align: center;">Aplicații recomandate</h2>
+        <div class="product-grid">
+            @foreach (var app in Model)
+            {
+                <div class="adobe-card">
+                    <div style="text-align: center;">
+                        <span class="app-icon">
+                            @(app.Name.Contains("Photoshop") ? "📷" :
+                                                    app.Name.Contains("Illustrator") ? "🖌️" :
+                                                    app.Name.Contains("Premiere") ? "🎬" : "🎨")
+                        </span>
+                        <h4 class="product-name">@app.Name</h4>
+                        <p class="product-price" style="font-size: 1.1rem;">@app.BasePrice.ToString("F2") RON</p>
+                    </div>
+                    <a asp-controller="Subscription" asp-action="Index" class="adobe-btn adobe-btn-outline" style="margin-top: 10px;">Vezi detalii</a>
+                </div>
+            }
+        </div>
     </div>
-
-    <div class="service-item">
-        <h3>Plăți simplificate</h3>
-        <p>Integrare directă cu portofele digitale și carduri bancare pentru un flux de lucru neîntrerupt și acces instant la unelte.</p>
-    </div>
-
-    <div class="service-item">
-        <h3>Stocare inteligentă</h3>
-        <p>Sincronizează-ți proiectele pe toate dispozitivele. Începe lucrul pe desktop și finalizează-l pe tabletă sau mobil.</p>
-    </div>
-</section>
+</div>

@@ -1,43 +1,57 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using DataContract.DTOs;
-using DAL.Abstract;
-using BusinessLogic.Factories;
-using BusinessLogic.Facade; // <--- ADAUGĂ ACEST USING
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using BusinessLogic.Composite;
+using BusinessLogic.Facade;
+using BusinessLogic.Factories;
+using DAL.Abstract;
+using DataContract.DTOs;
+using Microsoft.AspNetCore.Mvc;
 
 namespace SubscriptionManagement.Web.Controllers
 {
 	public class SubscriptionController : Controller
 	{
-		private readonly SubscriptionPurchaseFacade _purchaseFacade; // <--- 1. FOLOSIM FAȚADA
+		private readonly SubscriptionPurchaseFacade _purchaseFacade;
 		private readonly ISubscriptionRepository _repository;
+		private readonly CreativeToolAssembly _assembly; // <--- 1. ADAUGĂ CÂMPUL PENTRU ASSEMBLY
 
-		// 2. MODIFICĂ CONSTRUCTORUL
-		public SubscriptionController(SubscriptionPurchaseFacade purchaseFacade, ISubscriptionRepository repository)
+		// 2. INJECTEAZĂ ȘI ASSEMBLY ÎN CONSTRUCTOR
+		public SubscriptionController(
+			SubscriptionPurchaseFacade purchaseFacade,
+			ISubscriptionRepository repository,
+			CreativeToolAssembly assembly) // <--- Injectăm aici
 		{
 			_purchaseFacade = purchaseFacade;
 			_repository = repository;
+			_assembly = assembly; // <--- Atribuim aici
 		}
 
 		[HttpGet]
-		public async Task<IActionResult> Index()
+		public async Task<IActionResult> Index(Guid? appId)
 		{
-			// Folosim fațada pentru a lua planurile
-			var plans = await _purchaseFacade.GetAvailablePlans();
-			return View(plans);
+			if (appId == null) return RedirectToAction("Products", "Home");
+
+			// 3. FOLOSEȘTE _assembly (deja injectat), nu mai face 'new'
+			var product = await _assembly.LoadToolHierarchy(appId.Value);
+
+			ViewBag.SelectedProductName = product.GetName();
+			ViewBag.SelectedAppId = appId;
+			ViewBag.BasePrice = product.GetPrice();
+
+			return View();
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> Subscribe(string planType, string paymentType)
+		public async Task<IActionResult> Subscribe(Guid appId, string accessType, string paymentType)
 		{
 			try
 			{
 				var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
 				if (string.IsNullOrEmpty(userIdClaim)) return RedirectToAction("Login", "Account");
+				Guid currentUserId = Guid.Parse(userIdClaim);
 
-				// 3. APELĂM FAȚADA (Mult mai simplu)
-				var response = await _purchaseFacade.ExecutePurchaseFlow(planType, paymentType, Guid.Parse(userIdClaim));
+				var response = await _purchaseFacade.ExecutePurchaseFlow(appId, accessType, paymentType, currentUserId);
 
 				ViewBag.Message = response.Message;
 				ViewBag.LicenseKey = response.LicenseKey;
@@ -47,12 +61,15 @@ namespace SubscriptionManagement.Web.Controllers
 				ViewBag.Error = ex.Message;
 			}
 
-			// Re-trimitem lista prin fațadă
-			var plans = await _purchaseFacade.GetAvailablePlans();
-			return View("Index", plans);
+			// 4. ACUM _assembly ESTE DISPONIBILĂ ȘI AICI FĂRĂ EROARE
+			var creativeElement = await _assembly.LoadToolHierarchy(appId);
+			ViewBag.SelectedProductName = creativeElement.GetName();
+			ViewBag.BasePrice = creativeElement.GetPrice();
+			ViewBag.SelectedAppId = appId;
+
+			return View("Index");
 		}
 
-		// Partea de Clone rămâne la fel (folosește _repository direct pentru Prototype)
 		[HttpGet]
 		public async Task<IActionResult> Clone(Guid id)
 		{

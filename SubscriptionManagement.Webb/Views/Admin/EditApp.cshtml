@@ -1,0 +1,22 @@
+﻿@model Domain.Entities.CreativeApp
+@section Styles {
+    <link rel="stylesheet" href="~/css/subscription.css" />
+}
+
+<div class="sub-card" style="max-width: 500px; margin: 50px auto;">
+    <h2>✏️ Editează Aplicația</h2>
+    <hr />
+    <form asp-action="EditApp" method="post">
+        <input type="hidden" asp-for="Id" />
+        <div class="form-section">
+            <label>Nume</label>
+            <input type="text" asp-for="Name" class="custom-select" required />
+        </div>
+        <div class="form-section">
+            <label>Preț (RON)</label>
+            <input type="number" asp-for="BasePrice" class="custom-select" step="0.01" required />
+        </div>
+        <button type="submit" class="adobe-btn adobe-btn-primary w-100">Actualizează</button>
+        <a asp-action="Catalog" style="display:block; text-align:center; margin-top:15px; color:#666">Înapoi</a>
+    </form>
+</div>

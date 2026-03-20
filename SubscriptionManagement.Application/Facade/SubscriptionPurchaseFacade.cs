@@ -17,10 +17,10 @@ namespace BusinessLogic.Facade
 		}
 
 		// Aceasta este metoda simplificată ("Fațada")
-		public async Task<SubscriptionResponse> ExecutePurchaseFlow(string planType, string paymentType, Guid userId)
+		public async Task<SubscriptionResponse> ExecutePurchaseFlow(Guid appId, string accessType, string paymentType, Guid userId)
 		{
-			// Aici ascundem complexitatea apelului către service
-			return await _subscriptionService.SubscribeUserAsync(planType, paymentType, userId);
+			// Fațada doar deleagă către Service-ul care are toată logica de pattern-uri
+			return await _subscriptionService.SubscribeUserAsync(appId, accessType, paymentType, userId);
 		}
 
 		// Putem pune și logica de preluare a planurilor aici pentru a curăța Controller-ul de tot

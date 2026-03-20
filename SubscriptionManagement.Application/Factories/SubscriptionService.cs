@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BusinessLogic.AbstractFactory;
 using BusinessLogic.Adapters;
+using BusinessLogic.Composite;
 using BusinessLogic.Factories; // Asigură-te că namespace-urile sunt corecte
 using BusinessLogic.Singleton;
 using DAL.Abstract;
@@ -28,46 +29,42 @@ namespace BusinessLogic.Factories
 			_currencyAdapter = currencyAdapter;
 		}
 
-		public async Task<SubscriptionResponse> SubscribeUserAsync(string planName, string paymentType, Guid userId)
+		public async Task<SubscriptionResponse> SubscribeUserAsync(Guid appId, string accessType, string paymentType, Guid userId)
 		{
-			var allPlans = await _repository.GetAllPlansAsync();
+			// 1. FOLOSIM COMPOSITE: Calculăm prețul real al produsului ales (App sau Bundle)
+			var assembly = new CreativeToolAssembly(_repository);
+			var creativeElement = await assembly.LoadToolHierarchy(appId);
 
-			// 1. Găsim planul după numele primit din formular
-			var plan = allPlans.FirstOrDefault(p => p.Name.Equals(planName, StringComparison.OrdinalIgnoreCase));
-			var user = await _repository.GetUserByIdAsync(userId);
+			if (creativeElement == null) throw new Exception("Produsul nu există!");
 
-			if (plan == null || user == null) throw new Exception("Plan sau Utilizator negăsit.");
+			decimal basePrice = creativeElement.GetPrice();
 
-			// 2. DETERMINĂM TIPUL PENTRU FACTORY (LOGICĂ NOUĂ)
-			// În loc să trimitem planName ("Free Trial Plan"), trimitem "free" sau "premium"
-			string managerKey = (plan.MonthlyPrice == 0) ? "free" : "premium";
+			// 2. LOGICA DE FACTORY: Calculăm prețul final în funcție de tipul de acces
+			decimal finalPrice = accessType switch
+			{
+				"free" => 0,
+				"monthly" => basePrice,
+				"annual" => basePrice * 10, // Ofertă: 12 luni la preț de 10
+				_ => basePrice
+			};
 
-			// 3. FACTORY METHOD
-			// Acum va funcționa pentru orice plan, chiar și pentru "Copie - Premium"
-			var manager = _provider.GetManager(managerKey);
+			// 3. ACTIVARE PRIN FACTORY METHOD
+			var manager = _provider.GetManager(accessType);
+			string licenseKey = LicenseGenerator.Instance.GenerateKey();
+			manager.ProcessSubscription(userId, appId, licenseKey);
 
-			// Trimitem și licența (Singleton)
-			string finalLicense = LicenseGenerator.Instance.GenerateKey();
-			manager.ProcessSubscription(user.Id, plan.Id, finalLicense);
-
-			// 4. ABSTRACT FACTORY
+			// 4. PLATA PRIN ABSTRACT FACTORY (Folosim prețul calculat dinamic!)
 			var billingFactory = _billingProvider.GetFactory(paymentType);
-			string paymentResult = billingFactory.CreateProcessor().ProcessPayment(plan.MonthlyPrice);
-			string invoiceResult = billingFactory.CreateInvoice().GenerateInvoice();
+			var paymentMsg = billingFactory.CreateProcessor().ProcessPayment(finalPrice);
 
-			// 3. UTILIZAREA ADAPTORULUI
-			// În interiorul metodei SubscribeUserAsync
-			decimal priceInEur = await _currencyAdapter.ConvertToEur(plan.MonthlyPrice);
-
+			// 5. CONVERSIE PRIN ADAPTER (Pentru raportare în EUR)
+			decimal priceInEur = await _currencyAdapter.ConvertToEur(finalPrice);
 
 			return new SubscriptionResponse
 			{
-				PlanName = plan.Name,
-				Status = "Activ",
-				LicenseKey = finalLicense,
-				Message = $"[Succes: {plan.Name}] {paymentResult} | Total: {priceInEur:F2}€ (echivalentul a {plan.MonthlyPrice} RON) | {invoiceResult}"
-
-				
+				PlanName = $"{creativeElement.GetName()} ({accessType})",
+				LicenseKey = licenseKey,
+				Message = $"Succes! {paymentMsg} | Total: {priceInEur:F2}€ ({finalPrice} RON)"
 			};
 		}
 	}

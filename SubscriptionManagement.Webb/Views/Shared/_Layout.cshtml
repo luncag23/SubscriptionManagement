@@ -3,19 +3,33 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - SubscriptionManagement.Webb</title>
-    <script type="importmap"></script>
+    <title>@ViewData["Title"] - Adobe Subscription Mgmt</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/SubscriptionManagement.Webb.styles.css" asp-append-version="true" />
-    <!-- ... alte link-uri de css ... -->
+    @* Secțiunea Styles pentru paginile care au CSS-uri proprii (ca subscription.css) *@
     @await RenderSectionAsync("Styles", required: false)
+
+    <style>
+        .navbar-brand {
+            font-weight: 800;
+            color: #FA0F00 !important;
+        }
+
+        .nav-link {
+            font-weight: 500;
+        }
+
+        .admin-badge {
+            background: #f0f7ff;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">SubscriptionManagement.Webb</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ADOBE</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -26,11 +40,38 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link text-dark" asp-controller="Subscription" asp-action="Index">Abonamente</a>
                         </li>
+
+                        @* --- ADMIN CONSOLE DROPDOWN (Vibil doar dacă e logat) --- *@
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item dropdown admin-badge">
+                                <a class="nav-link dropdown-toggle text-primary" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    ⚙️ Admin Console
+                                </a>
+                                <ul class="dropdown-menu shadow border-0" aria-labelledby="adminDropdown">
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Admin" asp-action="Catalog">
+                                            📦 Catalog & Composite
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Admin" asp-action="CreateApp">
+                                            ➕ Adaugă Aplicație
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <small class="dropdown-header">Pattern Testing</small>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
                     </ul>
-                    <ul class="navbar-nav ms-auto">
-                        @* ms-auto împinge elementele în dreapta *@
+
+                    @* --- SECȚIUNE UTILIZATOR (DREAPTA) --- *@
+                    <ul class="navbar-nav">
                         @if (User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item">
@@ -39,8 +80,8 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline">
-                                    <button type="submit" class="nav-link btn btn-link text-danger" style="text-decoration:none">Logout</button>
+                                <form asp-controller="Account" asp-action="Logout" method="post" class="form-inline">
+                                    <button type="submit" class="nav-link btn btn-link text-danger border-0" style="text-decoration:none">Logout</button>
                                 </form>
                             </li>
                         }
@@ -55,10 +96,10 @@
                         }
                     </ul>
                 </div>
-
             </div>
         </nav>
     </header>
+
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
@@ -67,9 +108,10 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2026 - SubscriptionManagement.Webb - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2026 - SubscriptionManagement - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

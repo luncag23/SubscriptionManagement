@@ -21,5 +21,15 @@ namespace DAL.Abstract
 		Task UpdateUserAsync(User user);
 		Task AddSubscriptionPlanAsync(SubscriptionPlan plan);
 		Task UpdateUserProfileAsync(UserProfile profile);
+
+		// --- METODE NOI PENTRU COMPOSITE MANY-TO-MANY ---
+		Task AddAppAsync(CreativeApp app);
+		Task<IEnumerable<CreativeApp>> GetAllAppsAsync();
+		Task<CreativeApp> GetAppByIdAsync(Guid appId);
+		Task AssignAppToBundleAsync(Guid appId, Guid bundleId);
+		Task<IEnumerable<CreativeApp>> GetChildrenForBundleAsync(Guid bundleId);
+		Task UpdateAppAsync(CreativeApp app);
+		Task UpdateBundleAssignmentsAsync(Guid bundleId, List<Guid> selectedAppIds);
+		Task DeleteAppAsync(Guid id);
 	}
 }

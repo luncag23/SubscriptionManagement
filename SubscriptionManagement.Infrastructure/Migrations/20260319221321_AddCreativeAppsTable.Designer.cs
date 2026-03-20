@@ -4,6 +4,7 @@ using DAL.Concrete;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.Migrations
 {
     [DbContext(typeof(SubscriptionDbContext))]
-    partial class SubscriptionDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260319221321_AddCreativeAppsTable")]
+    partial class AddCreativeAppsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,21 +24,6 @@ namespace DAL.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("Domain.Entities.AppBundleAssignment", b =>
-                {
-                    b.Property<Guid>("BundleId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("AppId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("BundleId", "AppId");
-
-                    b.HasIndex("AppId");
-
-                    b.ToTable("AppBundleAssignments");
-                });
 
             modelBuilder.Entity("Domain.Entities.CreativeApp", b =>
                 {
@@ -50,7 +38,12 @@ namespace DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("ParentAppId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("ParentAppId");
 
                     b.ToTable("CreativeApps");
                 });
@@ -61,15 +54,15 @@ namespace DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("AppId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("LicenseKey")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("PlanId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
@@ -82,7 +75,7 @@ namespace DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AppId");
+                    b.HasIndex("PlanId");
 
                     b.HasIndex("UserId");
 
@@ -174,30 +167,20 @@ namespace DAL.Migrations
                     b.ToTable("UserProfiles");
                 });
 
-            modelBuilder.Entity("Domain.Entities.AppBundleAssignment", b =>
+            modelBuilder.Entity("Domain.Entities.CreativeApp", b =>
                 {
-                    b.HasOne("Domain.Entities.CreativeApp", "App")
-                        .WithMany("AssignmentsAsApp")
-                        .HasForeignKey("AppId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                    b.HasOne("Domain.Entities.CreativeApp", "ParentApp")
+                        .WithMany("ChildrenApps")
+                        .HasForeignKey("ParentAppId");
 
-                    b.HasOne("Domain.Entities.CreativeApp", "Bundle")
-                        .WithMany("AssignmentsAsBundle")
-                        .HasForeignKey("BundleId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("App");
-
-                    b.Navigation("Bundle");
+                    b.Navigation("ParentApp");
                 });
 
             modelBuilder.Entity("Domain.Entities.Subscription", b =>
                 {
-                    b.HasOne("Domain.Entities.CreativeApp", "App")
+                    b.HasOne("Domain.Entities.SubscriptionPlan", "Plan")
                         .WithMany()
-                        .HasForeignKey("AppId")
+                        .HasForeignKey("PlanId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -207,7 +190,7 @@ namespace DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("App");
+                    b.Navigation("Plan");
 
                     b.Navigation("User");
                 });
@@ -225,9 +208,7 @@ namespace DAL.Migrations
 
             modelBuilder.Entity("Domain.Entities.CreativeApp", b =>
                 {
-                    b.Navigation("AssignmentsAsApp");
-
-                    b.Navigation("AssignmentsAsBundle");
+                    b.Navigation("ChildrenApps");
                 });
 
             modelBuilder.Entity("Domain.Entities.User", b =>

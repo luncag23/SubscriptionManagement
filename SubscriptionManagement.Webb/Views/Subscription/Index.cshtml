@@ -1,122 +1,177 @@
-﻿@* Referința către fișierul CSS nou *@
+﻿@using DataContract.DTOs
+
+
 @section Styles {
     <link rel="stylesheet" href="~/css/subscription.css" />
+    <style>
+        .checkout-container {
+            max-width: 700px;
+            margin: 40px auto;
+        }
+
+        .order-summary {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px dashed #1473E6;
+            margin-bottom: 25px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .summary-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .summary-value {
+            font-weight: 700;
+            color: #222;
+        }
+
+        .total-price {
+            font-size: 1.5rem;
+            color: #1473E6;
+        }
+
+        .access-option {
+            border: 2px solid #eee;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: block;
+        }
+
+            .access-option:hover {
+                border-color: #1473E6;
+                background: #f0f7ff;
+            }
+
+            .access-option input {
+                margin-right: 10px;
+                transform: scale(1.2);
+            }
+    </style>
 }
-@model IEnumerable<Domain.Entities.SubscriptionPlan>
 
-<div class="subscription-body">
+<div class="checkout-container">
     <div class="sub-card">
-        <h1>Subscription Management</h1>
+        <h1 style="text-align:left; margin-bottom:10px;">Finalizare Comandă</h1>
+        <p style="color:#666">Revizuiește selecția și alege tipul de abonament dorit.</p>
+        <hr />
 
-        @* Mesaje de Feedback *@
+        @* 1. REZUMAT PRODUS (Calculat prin Composite Pattern) *@
+        <div class="order-summary">
+            <div class="summary-row">
+                <span class="summary-label">Produs/Pachet selectat:</span>
+                <span class="summary-value">@ViewBag.SelectedProductName</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">Preț de bază (Monthly):</span>
+                <span class="summary-value total-price">@ViewBag.BasePrice.ToString("F2") RON</span>
+            </div>
+        </div>
+
+        @* MESAJE DE EROARE / SUCCES *@
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-error"><strong>✕</strong> @ViewBag.Error</div>
+        }
+        @* --- ADAUGĂ ACEST BLOC PENTRU SUCCES --- *@
         @if (ViewBag.Message != null)
         {
-            <div class="alert alert-success">
-                <strong>✓ Succes!</strong> @ViewBag.Message
+            <div class="success-card">
+                <div class="success-icon">Check Circle ✅</div>
+                <h2 style="color: #28a745; font-weight: 800;">Abonament Activat!</h2>
 
-                @* Dacă ai trimis obiectul response prin ViewBag sau Model, afișează licența *@
-                <div style="margin-top:10px; border-top:1px dashed #155724; padding-top:10px;">
-                    Codul tău de activare este: <code style="font-size:1.2rem; background:#fff; padding:2px 8px;">@ViewBag.LicenseKey</code>
+                <p class="success-details">
+                    @ViewBag.Message.Split('|')[0] <br />
+                    <span style="font-weight: 600; color: #1473E6;">@ViewBag.Message.Split('|')[1]</span>
+                </p>
+
+                @if (ViewBag.LicenseKey != null)
+                {
+                    <div class="license-box">
+                        <span class="license-label">Cheia ta de activare unică</span>
+                        <div class="license-key">@ViewBag.LicenseKey</div>
+                    </div>
+                    <small class="text-muted">Păstrează acest cod pentru a activa aplicațiile pe dispozitivele tale.</small>
+                }
+
+                <div style="margin-top: 25px;">
+                    <a href="/" class="adobe-btn adobe-btn-outline" style="width: auto; padding: 10px 30px;">Mergi la aplicațiile mele</a>
                 </div>
             </div>
         }
-
-        @if (ViewBag.Error != null)
-        {
-            <div class="alert alert-error">
-                <strong>✕</strong> @ViewBag.Error
-            </div>
-        }
+        @* --------------------------------------- *@
 
         <form asp-action="Subscribe" method="post">
+            @* ID-ul aplicației sau pachetului ales anterior *@
+            <input type="hidden" name="appId" value="@ViewBag.SelectedAppId" />
 
-            <!-- SECȚIUNEA 1: FACTORY METHOD -->
+            @* 2. SELECȚIE TIP ACCES (Destinația Factory Method) *@
             <div class="form-section">
                 <span class="pattern-badge">Pattern: Factory Method</span>
-                <label>1. Selectează Planul de Acces</label>
-                <select name="planType" class="custom-select">
-                    @if (Model != null && Model.Any())
-                    {
-                        @foreach (var plan in Model)
-                        {
-                            <option value="@plan.Name">
-                                @plan.Name (@plan.MonthlyPrice RON)
-                            </option>
-                        }
-                    }
-                    else
-                    {
-                        <option value="">Nu există planuri disponibile</option>
-                    }
-                </select>
+                <label>Selectează Planul de Acces:</label>
+
+                <label class="access-option">
+                    <input type="radio" name="accessType" value="free" checked>
+                    <span><b>Free Trial</b> (Acces complet 7 zile) - 0.00 RON</span>
+                </label>
+
+                <label class="access-option">
+                    <input type="radio" name="accessType" value="monthly">
+                    <span><b>Lunar</b> (30 zile) - @ViewBag.BasePrice.ToString("F2") RON / lună</span>
+                </label>
+
+                <label class="access-option">
+                    <input type="radio" name="accessType" value="annual">
+                    <span><b>Anual</b> (365 zile) - @((ViewBag.BasePrice * 10).ToString("F2")) RON / an <small style="color:green">(2 luni GRATIS)</small></span>
+                </label>
             </div>
 
-            <!-- SECȚIUNEA 2: ABSTRACT FACTORY -->
+            @* 3. METODA DE PLATĂ (Abstract Factory) *@
             <div class="form-section">
                 <span class="pattern-badge">Pattern: Abstract Factory</span>
-                <label>2. Metoda de Plată & Facturare</label>
+                <label>Alege Metoda de Plată:</label>
 
                 <div class="payment-grid">
                     <label class="payment-option">
                         <input type="radio" name="paymentType" value="google" checked>
-                        <span><b>Google Pay</b> (G-Wallet & Digital Invoice)</span>
+                        <span><b>Google Pay</b> (G-Wallet Express)</span>
                     </label>
 
                     <label class="payment-option">
                         <input type="radio" name="paymentType" value="paypal">
-                        <span><b>PayPal</b> (Online Transfer & PayPal Receipt)</span>
+                        <span><b>PayPal</b> (Transfer Instant)</span>
                     </label>
 
                     <label class="payment-option">
                         <input type="radio" name="paymentType" value="card">
-                        <span><b>Credit Card</b> (Bank Transaction & PDF Invoice)</span>
+                        <span><b>Credit Card</b> (Plată securizată)</span>
                     </label>
                 </div>
             </div>
 
-            <button type="submit" class="btn-process">
-                Finalizează Abonamentul
+            <button type="submit" class="btn-process" style="height: 60px; font-size: 1.2rem;">
+                Confirmă și Activează Licența
             </button>
-
-            
         </form>
-
-
-        <div class="sub-card" style="margin-top: 40px; max-width: 800px;">
-            <h3>⚙️ Administrare Planuri (Prototype Pattern)</h3>
-            <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-                <thead>
-                    <tr style="text-align: left; border-bottom: 2px solid #eee;">
-                        <th>Nume Plan</th>
-                        <th>Preț (RON)</th>
-                        <th>Stocare</th>
-                        <th>Acțiune</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var plan in Model)
-                    {
-                        <tr style="border-bottom: 1px solid #eee;">
-                            <td style="padding: 10px 0;">@plan.Name</td>
-                            <td>@plan.MonthlyPrice</td>
-                            <td>@plan.MaxStorageGB GB</td>
-                            <td>
-                                <a asp-action="Clone" asp-route-id="@plan.Id"
-                                   style="color: #1473E6; text-decoration: none; font-weight: 600;">
-                                    📋 Clonează
-                                </a>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
 
         <div class="footer-info">
             <hr />
-            Acest proiect utilizează <b>Factory Method</b> pentru a decide strategia de activare
-            și <b>Abstract Factory</b> pentru a asigura compatibilitatea între serviciile
-            de plată și generatorii de documente fiscale.
+            <p>
+                <b>Logica din spate:</b>
+                Suma este preluată din <i>Composite</i>, durata este decisă de <i>Factory Method</i>,
+                iar procesarea este delegată către <i>Abstract Factory</i>.
+                Prețul final va fi convertit în timp real via <i>Currency Adapter</i>.
+            </p>
         </div>
     </div>
 </div>

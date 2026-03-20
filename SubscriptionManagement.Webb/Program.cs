@@ -1,6 +1,7 @@
 using BusinessLogic.AbstractFactory;
 using BusinessLogic.Adapters;
 using BusinessLogic.Builder;
+using BusinessLogic.Composite;
 using BusinessLogic.Facade;
 using BusinessLogic.Factories;
 using DAL.Abstract;
@@ -34,6 +35,9 @@ builder.Services.AddHttpClient<ICurrencyConverter, CurrencyAdapter>();
 
 //Facade
 builder.Services.AddScoped<SubscriptionPurchaseFacade>();
+
+//Composite
+builder.Services.AddScoped<CreativeToolAssembly>();
 
 // --- 3. SECURITATE (Autentificare) ---
 builder.Services.AddAuthentication("CookieAuth")

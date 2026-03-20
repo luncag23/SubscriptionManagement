@@ -1,28 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using BusinessLogic.Factories;
 using DAL.Abstract;
 
-namespace BusinessLogic.Factories
+public class SubscriptionProvider
 {
-	public class SubscriptionProvider
+	private readonly ISubscriptionRepository _repository;
+
+	public SubscriptionProvider(ISubscriptionRepository repository)
 	{
-		private readonly ISubscriptionRepository _repository;
-
-		public SubscriptionProvider(ISubscriptionRepository repository)
-		{
-			_repository = repository;
-		}
-
-		public SubscriptionManager GetManager(string type)
-		{
-			return type.ToLower() switch
-			{
-				"free" => new FreeTrialManager(_repository),
-				"premium" => new PremiumSubscriptionManager(_repository),
-				_ => throw new ArgumentException("Invalid type")
-			};
-		}
+		_repository = repository;
 	}
 
+	public SubscriptionManager GetManager(string accessType)
+	{
+		return accessType.ToLower() switch
+		{
+			"free" => new FreeTrialManager(_repository),
+			"monthly" => new MonthlySubscriptionManager(_repository), // Redenumim Premium în Monthly
+			"annual" => new AnnualSubscriptionManager(_repository),  // Adăugăm Annual
+			_ => throw new ArgumentException("Tip de acces invalid")
+		};
+	}
 }

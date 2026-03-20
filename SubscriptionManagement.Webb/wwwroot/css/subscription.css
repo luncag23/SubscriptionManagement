@@ -145,3 +145,65 @@ h1 {
 	text-align: center;
 	line-height: 1.6;
 }
+
+/* Design modern pentru succes */
+.success-card {
+	background: #ffffff;
+	border-radius: 16px;
+	box-shadow: 0 10px 30px rgba(40, 167, 69, 0.15);
+	border: 1px solid #d4edda;
+	padding: 30px;
+	margin-bottom: 40px;
+	text-align: center;
+	animation: slideDown 0.5s ease-out;
+}
+
+@keyframes slideDown {
+	from {
+		opacity: 0;
+		transform: translateY(-20px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.success-icon {
+	font-size: 3rem;
+	color: #28a745;
+	margin-bottom: 15px;
+}
+
+.license-box {
+	background: #f8f9fa;
+	border: 2px dashed #1473E6;
+	padding: 20px;
+	border-radius: 12px;
+	margin: 20px auto;
+	max-width: 400px;
+}
+
+.license-label {
+	text-transform: uppercase;
+	font-size: 0.75rem;
+	letter-spacing: 1px;
+	color: #666;
+	display: block;
+	margin-bottom: 10px;
+}
+
+.license-key {
+	font-family: 'Courier New', Courier, monospace;
+	font-size: 1.8rem;
+	font-weight: 800;
+	color: #EB1000; /* Adobe Red */
+	letter-spacing: 3px;
+}
+
+.success-details {
+	color: #444;
+	font-size: 1rem;
+	line-height: 1.6;
+}
