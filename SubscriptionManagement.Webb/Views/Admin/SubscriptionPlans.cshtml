@@ -1,0 +1,55 @@
+﻿@model IEnumerable<Domain.Entities.SubscriptionPlan>
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Gestiune Planuri";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/subscription.css" />
+}
+
+<div class="admin-content">
+    <h1 style="font-weight: 800;">⏳ Planuri de Acces (Prototype)</h1>
+    <p class="text-muted">Gestionează ofertele de tip Trial, Monthly sau Annual prin clonare.</p>
+    <hr />
+
+    @if (ViewBag.Message != null)
+    {
+        <div class="alert alert-success">@ViewBag.Message</div>
+    }
+
+    <div class="sub-card" style="margin:0; border-radius:12px;">
+        <table class="table" style="vertical-align: middle;">
+            <thead>
+                <tr style="color: #666; font-size: 0.8rem; text-transform: uppercase;">
+                    <th>Nume Plan</th>
+                    <th>Preț Bază</th>
+                    <th>Stocare</th>
+                    <th class="text-end">Acțiuni</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var plan in Model)
+                {
+                    <tr>
+                        <td>
+                            <div style="font-weight: 700;">@plan.Name</div>
+                            <small class="text-muted">@plan.Description</small>
+                        </td>
+                        <td>
+                            <span style="color: var(--adobe-blue); font-weight: 700;">
+                                @plan.MonthlyPrice.ToString("F2") RON
+                            </span>
+                        </td>
+                        <td>@plan.MaxStorageGB GB</td>
+                        <td class="text-end">
+                            <a asp-action="ClonePlan" asp-route-id="@plan.Id" class="adobe-btn adobe-btn-outline" style="padding: 6px 15px; font-size: 0.8rem; width: auto;">
+                                📋 Clonează
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

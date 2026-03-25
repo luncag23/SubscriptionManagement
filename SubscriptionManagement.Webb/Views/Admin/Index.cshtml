@@ -1,0 +1,28 @@
+﻿@{
+    Layout = "_AdminLayout";
+}
+
+<h1 style="font-weight: 800; margin-bottom: 30px;">Consolă Administrator</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="stat-card">
+            <div class="stat-number" style="color: var(--adobe-blue)">@ViewBag.TotalApps</div>
+            <div style="color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.8rem;">Aplicații Individuale</div>
+            <p style="margin-top:10px; font-size: 0.9rem;">Elemente de bază din catalog</p>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="stat-card">
+            <div class="stat-number" style="color: #28a745">@ViewBag.TotalBundles</div>
+            <div style="color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.8rem;">Pachete Composite</div>
+            <p style="margin-top:10px; font-size: 0.9rem;">Oferte calculate automat</p>
+        </div>
+    </div>
+</div>
+
+<div class="sub-card" style="margin-top: 30px; border-radius: 12px;">
+    <h3>Activitate Recentă</h3>
+    <hr />
+    <p style="color:#999">Sistemul funcționează corect. Toate cele 8 design pattern-uri sunt active.</p>
+</div>

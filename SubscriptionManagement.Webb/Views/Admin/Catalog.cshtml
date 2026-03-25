@@ -4,6 +4,10 @@
     var bundles = ViewBag.CalculatedBundles as IEnumerable<dynamic>;
 }
 
+@{
+    Layout = "_AdminLayout";
+}
+
 @section Styles {
     <link rel="stylesheet" href="~/css/subscription.css" />
     <style>

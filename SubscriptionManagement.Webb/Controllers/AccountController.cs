@@ -4,6 +4,7 @@ using Domain.Entities;
 using BusinessLogic.Builder;
 using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
+using BusinessLogic.Security;
 
 namespace SubscriptionManagement.Web.Controllers
 {
@@ -12,21 +13,24 @@ namespace SubscriptionManagement.Web.Controllers
 		private readonly ISubscriptionRepository _repository;
 		private readonly IUserProfileBuilder _profileBuilder;
 		private readonly ProfileDirector _director;
+		private readonly IConfiguration _configuration;
 
 		public AccountController(ISubscriptionRepository repository,
 								 IUserProfileBuilder profileBuilder,
-								 ProfileDirector director)
+								 ProfileDirector director,
+								 IConfiguration configuration)
 		{
 			_repository = repository;
 			_profileBuilder = profileBuilder;
 			_director = director;
+			_configuration = configuration;
 		}
 
 		[HttpGet]
 		public IActionResult Register() => View();
 
 		[HttpPost]
-		public async Task<IActionResult> Register(string email, string fullName)
+		public async Task<IActionResult> Register(string email, string fullName, string password)
 		{
 			try
 			{
@@ -42,6 +46,7 @@ namespace SubscriptionManagement.Web.Controllers
 					Id = Guid.NewGuid(),
 					Email = email,
 					FullName = fullName,
+					Password = BusinessLogic.Security.PasswordHasher.HashPassword(password),
 					JoinedDate = DateTime.Now
 				};
 
@@ -78,17 +83,20 @@ namespace SubscriptionManagement.Web.Controllers
 
 		// 2. Metoda de POST rămâne cu numele Login
 				[HttpPost]
-		public async Task<IActionResult> Login(string email)
+		public async Task<IActionResult> Login(string email, string password)
 		{
 			var user = await _repository.GetUserByEmailAsync(email);
 
-			if (user != null)
+			if (user != null && BusinessLogic.Security.PasswordHasher.VerifyPassword(user.Password, password))
 			{
-				// Login Minimal folosind Cookies
+				string adminEmail = _configuration["AdminSettings:Email"];
+				string role = (user.Email.ToLower() == adminEmail.ToLower()) ? "Admin" : "User";
+
 				var claims = new List<Claim> {
 					new Claim(ClaimTypes.Name, user.FullName),
 					new Claim(ClaimTypes.Email, user.Email),
-					new Claim("UserId", user.Id.ToString())
+					new Claim("UserId", user.Id.ToString()),
+					new Claim(ClaimTypes.Role, role) 
 				};
 
 				var identity = new ClaimsIdentity(claims, "CookieAuth");
@@ -97,7 +105,7 @@ namespace SubscriptionManagement.Web.Controllers
 				return RedirectToAction("Index", "Home");
 			}
 
-			ViewBag.Error = "Utilizatorul nu a fost găsit.";
+			ViewBag.Error = "Email sau parolă incorectă.";
 			return View();
 		}
 

@@ -3,42 +3,51 @@
     <link rel="stylesheet" href="~/css/home.css" />
 }
 
-<div class="page-container">
+<div class="home-wrapper">
     <!-- HERO SECTION -->
-    <section class="hero-container" style="padding: 80px 0; text-align: center;">
-        <span class="hero-tagline" style="color: #1473E6; font-weight: 700; text-transform: uppercase; font-size: 0.9rem;">Adobe Creative Cloud</span>
-        <h1 class="hero-main-title" style="font-size: 3.5rem; margin-top: 10px;">Creativitate pentru toți.</h1>
-        <p class="hero-description" style="max-width: 700px; margin: 20px auto;">
-            Obține acces la peste 20 de aplicații de creație, fonturi, stocare în cloud și multe altele.
-            Începe călătoria ta creativă astăzi.
-        </p>
+    <section class="hero-clean">
+        <div class="container text-center">
+            <span class="brand-tagline">Adobe Creative Cloud</span>
+            <h1 class="main-headline">Creativitate pentru toți.</h1>
+            <p class="sub-headline">
+                Obține acces la peste 20 de aplicații de creație, fonturi, stocare în cloud și multe altele.
+                Începe călătoria ta creativă astăzi.
+            </p>
 
-        <div class="hero-actions" style="margin-top: 30px;">
-            <a asp-action="Products" class="adobe-btn adobe-btn-primary" style="padding: 15px 40px; border-radius: 30px;">
-                Descoperă toate produsele →
-            </a>
+            <div class="cta-wrapper">
+                <a asp-action="Products" class="adobe-btn-main">
+                    Descoperă toate produsele
+                </a>
+            </div>
         </div>
     </section>
 
-    <!-- FEATURED APPS SECTION -->
-    <div style="margin-top: 50px;">
-        <h2 class="section-title" style="text-align: center;">Aplicații recomandate</h2>
-        <div class="product-grid">
-            @foreach (var app in Model)
-            {
-                <div class="adobe-card">
-                    <div style="text-align: center;">
-                        <span class="app-icon">
-                            @(app.Name.Contains("Photoshop") ? "📷" :
-                                                    app.Name.Contains("Illustrator") ? "🖌️" :
-                                                    app.Name.Contains("Premiere") ? "🎬" : "🎨")
-                        </span>
-                        <h4 class="product-name">@app.Name</h4>
-                        <p class="product-price" style="font-size: 1.1rem;">@app.BasePrice.ToString("F2") RON</p>
+    <!-- FEATURED SECTION -->
+    <section class="featured-apps">
+        <div class="container">
+            <h2 class="section-title">Aplicații recomandate</h2>
+
+            <div class="product-grid">
+                @foreach (var app in Model)
+                {
+                    <div class="adobe-card-refined">
+                        <div class="card-content">
+                            <div class="app-icon-wrapper">
+                                @(app.Name.Contains("Premiere") ? "🎬" :
+                                                            app.Name.Contains("Illustrator") ? "🖌️" :
+                                                            app.Name.Contains("Photoshop") ? "📷" : "🎨")
+                            </div>
+                            <h4 class="app-name">@app.Name</h4>
+                            <p class="app-price">@app.BasePrice.ToString("F2") RON</p>
+                        </div>
+                        <div class="card-footer">
+                            <a asp-controller="Subscription" asp-action="Index" asp-route-appId="@app.Id" class="adobe-btn-link">
+                                Vezi detalii →
+                            </a>
+                        </div>
                     </div>
-                    <a asp-controller="Subscription" asp-action="Index" class="adobe-btn adobe-btn-outline" style="margin-top: 10px;">Vezi detalii</a>
-                </div>
-            }
+                }
+            </div>
         </div>
-    </div>
+    </section>
 </div>

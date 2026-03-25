@@ -14,17 +14,16 @@ namespace SubscriptionManagement.Web.Controllers
 	{
 		private readonly SubscriptionPurchaseFacade _purchaseFacade;
 		private readonly ISubscriptionRepository _repository;
-		private readonly CreativeToolAssembly _assembly; // <--- 1. ADAUGĂ CÂMPUL PENTRU ASSEMBLY
+		private readonly CreativeToolAssembly _assembly;
 
-		// 2. INJECTEAZĂ ȘI ASSEMBLY ÎN CONSTRUCTOR
 		public SubscriptionController(
 			SubscriptionPurchaseFacade purchaseFacade,
 			ISubscriptionRepository repository,
-			CreativeToolAssembly assembly) // <--- Injectăm aici
+			CreativeToolAssembly assembly)
 		{
 			_purchaseFacade = purchaseFacade;
 			_repository = repository;
-			_assembly = assembly; // <--- Atribuim aici
+			_assembly = assembly;
 		}
 
 		[HttpGet]
@@ -32,18 +31,22 @@ namespace SubscriptionManagement.Web.Controllers
 		{
 			if (appId == null) return RedirectToAction("Products", "Home");
 
-			// 3. FOLOSEȘTE _assembly (deja injectat), nu mai face 'new'
-			var product = await _assembly.LoadToolHierarchy(appId.Value);
+			// 1. Luăm datele produsului ales (Composite Logic)
+			var creativeElement = await _assembly.LoadToolHierarchy(appId.Value);
 
-			ViewBag.SelectedProductName = product.GetName();
+			// 2. Luăm toate planurile de acces create în Admin (Prototype Logic)
+			var allPlans = await _repository.GetAllPlansAsync();
+
 			ViewBag.SelectedAppId = appId;
-			ViewBag.BasePrice = product.GetPrice();
+			ViewBag.SelectedProductName = creativeElement.GetName();
+			ViewBag.BasePrice = creativeElement.GetPrice();
 
-			return View();
+			// Trimitem lista de planuri către Model pentru a genera butoanele radio dinamic
+			return View(allPlans);
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> Subscribe(Guid appId, string accessType, string paymentType)
+		public async Task<IActionResult> Subscribe(Guid appId, Guid planId, string paymentType)
 		{
 			try
 			{
@@ -51,6 +54,14 @@ namespace SubscriptionManagement.Web.Controllers
 				if (string.IsNullOrEmpty(userIdClaim)) return RedirectToAction("Login", "Account");
 				Guid currentUserId = Guid.Parse(userIdClaim);
 
+				// 1. Identificăm tipul de plan ales pentru a-l trimite la Factory Method
+				var selectedPlan = await _repository.GetPlanByIdAsync(planId);
+				string accessType = "monthly"; // default
+
+				if (selectedPlan.MonthlyPrice == 0) accessType = "free";
+				else if (selectedPlan.Name.ToLower().Contains("anual")) accessType = "annual";
+
+				// 2. Executăm prin FAȚADĂ (care orchestrează Factory, Abstract Factory, Singleton, Adapter)
 				var response = await _purchaseFacade.ExecutePurchaseFlow(appId, accessType, paymentType, currentUserId);
 
 				ViewBag.Message = response.Message;
@@ -61,31 +72,15 @@ namespace SubscriptionManagement.Web.Controllers
 				ViewBag.Error = ex.Message;
 			}
 
-			// 4. ACUM _assembly ESTE DISPONIBILĂ ȘI AICI FĂRĂ EROARE
+			// 3. Re-încărcăm datele pentru a afișa din nou formularul (sau mesajul de succes)
 			var creativeElement = await _assembly.LoadToolHierarchy(appId);
+			var allPlans = await _repository.GetAllPlansAsync();
+
+			ViewBag.SelectedAppId = appId;
 			ViewBag.SelectedProductName = creativeElement.GetName();
 			ViewBag.BasePrice = creativeElement.GetPrice();
-			ViewBag.SelectedAppId = appId;
 
-			return View("Index");
-		}
-
-		[HttpGet]
-		public async Task<IActionResult> Clone(Guid id)
-		{
-			var templatePlan = await _repository.GetPlanByIdAsync(id);
-			if (templatePlan == null) return NotFound();
-			var clonedPlan = templatePlan.Clone();
-			clonedPlan.Name = "Copie - " + templatePlan.Name;
-			return View("CloneEditor", clonedPlan);
-		}
-
-		[HttpPost]
-		public async Task<IActionResult> ConfirmClone(Domain.Entities.SubscriptionPlan modifiedPlan)
-		{
-			modifiedPlan.Id = Guid.NewGuid();
-			await _repository.AddSubscriptionPlanAsync(modifiedPlan);
-			return RedirectToAction("Index", new { message = "Plan creat prin clonare!" });
+			return View("Index", allPlans); // Pasăm din nou lista de planuri (Model)
 		}
 	}
 }

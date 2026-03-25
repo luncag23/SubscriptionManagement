@@ -1,0 +1,28 @@
+﻿@{
+    Layout = "_AdminLayout";
+}
+
+<h1 style="font-weight: 800; margin-bottom: 10px;">Setări Sistem</h1>
+<p style="color: #666;">Configurații globale citite din appsettings.json</p>
+<hr />
+
+<div class="sub-card" style="max-width: 600px; margin: 0; border-radius: 12px;">
+    <div class="form-section">
+        <label>Email Administrator</label>
+        <input type="text" value="admin@adobe.com" class="custom-select" disabled />
+        <small class="text-muted">Acest email este protejat prin Proxy Pattern la nivel de acces.</small>
+    </div>
+
+    <div class="form-section">
+        <label>Mod Mentenanță</label>
+        <div class="form-check form-switch" style="padding-left: 2.5em;">
+            <input class="form-check-input" type="checkbox" style="width: 3em; height: 1.5em;">
+            <span style="margin-left: 10px;">Dezactivat</span>
+        </div>
+    </div>
+
+    <button class="btn-process" disabled>Salvează Modificări</button>
+    <p style="margin-top: 20px; font-size: 0.85rem; color: #dc3545;">
+        * Modificările sunt restricționate în varianta de demo.
+    </p>
+</div>

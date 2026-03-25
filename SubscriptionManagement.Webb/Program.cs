@@ -4,6 +4,7 @@ using BusinessLogic.Builder;
 using BusinessLogic.Composite;
 using BusinessLogic.Facade;
 using BusinessLogic.Factories;
+using BusinessLogic.Security;
 using DAL.Abstract;
 using DAL.Concrete;
 using Microsoft.EntityFrameworkCore;
@@ -58,6 +59,34 @@ using (var scope = app.Services.CreateScope())
 	// context.Database.Migrate(); // Opțional: rulează migrările automat
 	context.Database.EnsureCreated();
 
+	// --- În interiorul using (var scope = app.Services.CreateScope()) ---
+	var adminSettings = builder.Configuration.GetSection("AdminSettings");
+	string adminEmail = adminSettings["Email"];
+	string hashedPassword = PasswordHasher.HashPassword(adminSettings["Password"]);
+
+	if (!context.Users.Any(u => u.Email == adminEmail))
+	{
+		var adminUser = new Domain.Entities.User
+		{
+			Id = Guid.NewGuid(),
+			Email = adminEmail,
+			FullName = adminSettings["FullName"],
+			Password = hashedPassword,
+			JoinedDate = DateTime.Now
+		};
+		context.Users.Add(adminUser);
+
+		// De asemenea, îi creăm și un profil via Builder (manual aici pentru seed)
+		context.UserProfiles.Add(new Domain.Entities.UserProfile
+		{
+			Id = Guid.NewGuid(),
+			UserId = adminUser.Id,
+			DisplayName = "Administrator",
+			Bio = "Cont de sistem",
+			Theme = "Dark"
+		});
+	}
+
 	// Adăugare Planuri
 	if (!context.SubscriptionPlans.Any())
 	{
@@ -70,27 +99,20 @@ using (var scope = app.Services.CreateScope())
 				IsActive = true,
 				MonthlyPrice = 0,
 				MaxStorageGB = 20
-			},
-			new Domain.Entities.SubscriptionPlan
-			{
-				Id = Guid.Parse("99999999-9999-9999-9999-999999999999"),
-				Name = "Premium Plan",
-				Description = "Acces complet la toate aplicațiile (All Apps Bundle)",
-				IsActive = true,
-				MonthlyPrice = 1000.00m,
-				MaxStorageGB = 100
-			}
+			}			
 		);
 	}
 
 	// Utilizator de test (opțional, acum că avem Register)
 	if (!context.Users.Any(u => u.Email == "test@user.com"))
 	{
+		string hashedTestPassword = PasswordHasher.HashPassword("Test");
 		context.Users.Add(new Domain.Entities.User
 		{
 			Id = Guid.Parse("22222222-2222-2222-2222-222222222222"),
 			Email = "test@user.com",
 			FullName = "Test User",
+			Password = hashedTestPassword,
 			JoinedDate = DateTime.Now
 		});
 	}

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace SubscriptionManagement.Web.Controllers
 {
-	[Authorize]
+	[Authorize] // Momentan accesibil pentru orice utilizator logat (ulterior restricționat prin Proxy/Role)
 	public class AdminController : Controller
 	{
 		private readonly ISubscriptionRepository _repository;
@@ -22,20 +22,81 @@ namespace SubscriptionManagement.Web.Controllers
 			_assembly = assembly;
 		}
 
-		// --- CATALOG (PAGINA PRINCIPALĂ ADMIN) ---
+		// --- DASHBOARD ---
+		public async Task<IActionResult> Index()
+		{
+			var allApps = await _repository.GetAllAppsAsync();
+			ViewBag.TotalApps = allApps.Count(a => a.AssignmentsAsBundle == null || !a.AssignmentsAsBundle.Any());
+			ViewBag.TotalBundles = allApps.Count(a => a.AssignmentsAsBundle != null && a.AssignmentsAsBundle.Any());
+
+			return View();
+		}
+
+		[HttpGet]
+		public IActionResult Settings()
+		{
+			return View();
+		}
+
+		// --- GESTIUNE PLANURI DE ACCES (PROTOTYPE PATTERN) ---
+
+		[HttpGet]
+		public async Task<IActionResult> SubscriptionPlans()
+		{
+			var plans = await _repository.GetAllPlansAsync();
+
+			// Debug rapid: Pune un breakpoint aici să vezi dacă 'plans' are elemente
+			return View(plans);
+		}
+
+		[HttpGet]
+		public async Task<IActionResult> ClonePlan(Guid id)
+		{
+			var originalPlan = await _repository.GetPlanByIdAsync(id);
+			if (originalPlan == null) return NotFound();
+
+			// EXECUTĂM PROTOTYPE PATTERN:
+			// Obiectul original se clonează singur în memorie
+			var clonedPlan = originalPlan.Clone();
+
+			// Sugerăm un nume nou pentru a diferenția clona
+			clonedPlan.Name = "Copie - " + originalPlan.Name;
+
+			// Trimitem clona către View pentru a fi editată înainte de salvarea finală
+			return View(clonedPlan);
+		}
+
+		[HttpPost]
+		public async Task<IActionResult> SaveClonedPlan(SubscriptionPlan model)
+		{
+			try
+			{
+				// Resetăm ID-ul pentru a fi siguri că EF îl tratează ca o entitate nouă
+				model.Id = Guid.NewGuid();
+
+				await _repository.AddSubscriptionPlanAsync(model);
+				return RedirectToAction("SubscriptionPlans", new { message = "Plan creat prin clonare!" });
+			}
+			catch (Exception ex)
+			{
+				ViewBag.Error = "Eroare la salvarea clonei: " + ex.Message;
+				return View("ClonePlan", model);
+			}
+		}
+
+		// --- CATALOG PRODUSE (COMPOSITE PATTERN) ---
+
 		[HttpGet]
 		public async Task<IActionResult> Catalog()
 		{
 			var allApps = await _repository.GetAllAppsAsync();
 
-			// 1. FILTRARE STÂNGA: Doar aplicațiile individuale (Leafs)
-			// Un element este aplicație dacă NU conține alte elemente (AssignmentsAsBundle e gol)
+			// Filtrare Stânga: Aplicații (Frunze)
 			var individualApps = allApps
 				.Where(a => a.AssignmentsAsBundle == null || !a.AssignmentsAsBundle.Any())
 				.ToList();
 
-			// 2. FILTRARE DREAPTA: Doar pachetele (Composites)
-			// Un element este pachet dacă conține cel puțin un alt element
+			// Filtrare Dreapta: Pachete (Compozite)
 			var bundleEntities = allApps
 				.Where(a => a.AssignmentsAsBundle != null && a.AssignmentsAsBundle.Any())
 				.ToList();
@@ -43,7 +104,6 @@ namespace SubscriptionManagement.Web.Controllers
 			var calculatedBundles = new List<dynamic>();
 			foreach (var b in bundleEntities)
 			{
-				// Folosim motorul de asamblare Composite pentru a calcula prețul recursiv
 				var composite = await _assembly.LoadToolHierarchy(b.Id);
 				if (composite != null)
 				{
@@ -60,7 +120,7 @@ namespace SubscriptionManagement.Web.Controllers
 			return View(individualApps);
 		}
 
-		// --- GESTIUNE APLICAȚII (LEAFS) ---
+		// --- CRUD APLICAȚII ---
 
 		[HttpGet]
 		public IActionResult CreateApp() => View();
@@ -68,14 +128,9 @@ namespace SubscriptionManagement.Web.Controllers
 		[HttpPost]
 		public async Task<IActionResult> CreateApp(string name, decimal price)
 		{
-			var newApp = new CreativeApp
-			{
-				Id = Guid.NewGuid(),
-				Name = name,
-				BasePrice = price
-			};
+			var newApp = new CreativeApp { Id = Guid.NewGuid(), Name = name, BasePrice = price };
 			await _repository.AddAppAsync(newApp);
-			return RedirectToAction("Catalog", new { message = "Aplicație creată!" });
+			return RedirectToAction("Catalog");
 		}
 
 		[HttpGet]
@@ -99,7 +154,7 @@ namespace SubscriptionManagement.Web.Controllers
 			return RedirectToAction("Catalog");
 		}
 
-		// --- GESTIUNE PACHETE (COMPOSITES) ---
+		// --- CRUD PACHETE ---
 
 		[HttpGet]
 		public IActionResult CreateBundle() => View();
@@ -107,16 +162,8 @@ namespace SubscriptionManagement.Web.Controllers
 		[HttpPost]
 		public async Task<IActionResult> CreateBundle(string name)
 		{
-			// Un pachet este o CreativeApp cu preț de bază 0 (prețul se va calcula din copii)
-			var newBundle = new CreativeApp
-			{
-				Id = Guid.NewGuid(),
-				Name = name,
-				BasePrice = 0
-			};
+			var newBundle = new CreativeApp { Id = Guid.NewGuid(), Name = name, BasePrice = 0 };
 			await _repository.AddAppAsync(newBundle);
-
-			// Redirecționăm la EditBundle pentru a alege ce conține
 			return RedirectToAction("EditBundle", new { id = newBundle.Id });
 		}
 
@@ -127,9 +174,6 @@ namespace SubscriptionManagement.Web.Controllers
 			if (bundle == null) return NotFound();
 
 			var allApps = await _repository.GetAllAppsAsync();
-
-			// Pentru a evita buclele infinite, un pachet poate conține doar 
-			// aplicații care NU sunt ele însele pachete în acest moment
 			ViewBag.AvailableApps = allApps
 				.Where(a => a.Id != id && (a.AssignmentsAsBundle == null || !a.AssignmentsAsBundle.Any()))
 				.ToList();
@@ -143,45 +187,28 @@ namespace SubscriptionManagement.Web.Controllers
 		[HttpPost]
 		public async Task<IActionResult> EditBundle(Guid id, string name, List<Guid> selectedAppIds)
 		{
-			try
-			{
-				var bundle = await _repository.GetAppByIdAsync(id);
-				if (bundle == null) return NotFound();
+			var bundle = await _repository.GetAppByIdAsync(id);
+			bundle.Name = name;
+			await _repository.UpdateAppAsync(bundle);
+			await _repository.UpdateBundleAssignmentsAsync(id, selectedAppIds);
 
-				bundle.Name = name;
-				await _repository.UpdateAppAsync(bundle);
-
-				// Actualizăm legăturile Many-to-Many
-				await _repository.UpdateBundleAssignmentsAsync(id, selectedAppIds);
-
-				return RedirectToAction("Catalog");
-			}
-			catch (Exception ex)
-			{
-				ViewBag.Error = "Eroare la salvarea pachetului: " + ex.Message;
-				return View();
-			}
-		}
-
-		[HttpPost]
-		public async Task<IActionResult> DeleteApp(Guid id)
-		{
-			// Logica de ștergere (opțional de implementat în Repo)
 			return RedirectToAction("Catalog");
 		}
 
+		// --- ȘTERGERE ---
+
 		[HttpPost]
-		[ValidateAntiForgeryToken] // Recomandat pentru securitate la ștergere
+		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> DeleteElement(Guid id)
 		{
 			try
 			{
 				await _repository.DeleteAppAsync(id);
-				return RedirectToAction("Catalog", new { message = "Element șters cu succes!" });
+				return RedirectToAction("Catalog", new { message = "Șters cu succes!" });
 			}
 			catch (Exception ex)
 			{
-				TempData["Error"] = "Nu s-a putut șterge: " + ex.Message;
+				TempData["Error"] = "Eroare la ștergere: " + ex.Message;
 				return RedirectToAction("Catalog");
 			}
 		}

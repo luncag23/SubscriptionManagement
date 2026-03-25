@@ -1,0 +1,92 @@
+﻿:root {
+	--sidebar-width: 280px;
+	--adobe-blue: #1473e6;
+	--bg-main: #fcfcfc;
+	--bg-sidebar: #ffffff;
+	--border-color: #e1e1e1;
+	--text-main: #2c2c2c;
+	--text-muted: #6e6e6e;
+}
+
+.admin-wrapper {
+	display: flex;
+	min-height: calc(100vh - 65px);
+	background-color: var(--bg-main);
+}
+
+/* Sidebar Stil Deschis */
+.admin-sidebar {
+	width: var(--sidebar-width);
+	background-color: var(--bg-sidebar);
+	border-right: 1px solid var(--border-color);
+	padding: 25px 0;
+	flex-shrink: 0;
+}
+
+.sidebar-header {
+	padding: 0 25px 15px;
+	font-size: 0.7rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	color: var(--text-muted);
+	letter-spacing: 1.2px;
+}
+
+.sidebar-nav {
+	list-style: none;
+	padding: 0;
+}
+
+.sidebar-link {
+	display: flex;
+	align-items: center;
+	padding: 14px 25px;
+	color: var(--text-main);
+	text-decoration: none;
+	font-weight: 500;
+	transition: all 0.2s ease;
+	border-left: 4px solid transparent;
+}
+
+	.sidebar-link:hover {
+		background-color: #f8f9fa;
+		color: var(--adobe-blue);
+	}
+
+	.sidebar-link.active {
+		background-color: #f0f7ff;
+		color: var(--adobe-blue);
+		border-left-color: var(--adobe-blue);
+	}
+
+.sidebar-icon {
+	margin-right: 15px;
+	font-size: 1.2rem;
+}
+
+/* Conținutul din dreapta */
+.admin-main-content {
+	flex-grow: 1;
+	padding: 40px;
+}
+
+/* Stil Dashboard Cards (Pro) */
+.stat-card {
+	background: white;
+	border: 1px solid var(--border-color);
+	border-radius: 12px;
+	padding: 25px;
+	text-align: center;
+	transition: transform 0.2s;
+}
+
+	.stat-card:hover {
+		transform: translateY(-3px);
+		box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+	}
+
+.stat-number {
+	font-size: 2.5rem;
+	font-weight: 800;
+	margin-bottom: 5px;
+}

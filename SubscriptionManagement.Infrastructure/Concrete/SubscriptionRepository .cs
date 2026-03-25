@@ -25,7 +25,9 @@ namespace DAL.Concrete
 
 		public async Task<IEnumerable<SubscriptionPlan>> GetAllPlansAsync()
 		{
-			return await _context.SubscriptionPlans.Where(p => p.IsActive).ToListAsync();
+			// Scoatem filtrul .Where(p => p.IsActive) pentru Admin, 
+			// ca să poți vedea toate planurile configurate în sistem.
+			return await _context.SubscriptionPlans.ToListAsync();
 		}
 
 		public async Task AddSubscriptionPlanAsync(SubscriptionPlan plan)

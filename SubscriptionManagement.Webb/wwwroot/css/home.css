@@ -1,142 +1,127 @@
 ﻿:root {
 	--adobe-blue: #1473E6;
-	--adobe-red: #EB1000;
-	--dark-bg: #2c2c2c;
-	--light-gray: #f8f9fa;
-	--card-shadow: 0 4px 20px rgba(0,0,0,0.08);
+	--dark-text: #2C2C2C;
+	--gray-text: #656565;
+	--light-bg: #F8F9FA;
 }
 
-/* Container principal */
-.page-container {
-	padding: 40px 5%;
+.home-wrapper {
 	background-color: white;
 }
 
-/* Titluri */
-.section-title {
-	font-weight: 800;
-	font-size: 2.2rem;
-	margin-bottom: 30px;
-	color: #222;
+/* --- HERO SECTION --- */
+.hero-clean {
+	padding: 100px 20px;
+	background: radial-gradient(circle at top right, #f0f7ff 0%, #ffffff 100%);
 }
 
-/* Grid-ul pentru produse */
-.product-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-	gap: 25px;
-	margin-bottom: 50px;
-}
-
-/* Card-ul de produs (Leaf) */
-.adobe-card {
-	background: white;
-	border-radius: 16px;
-	padding: 25px;
-	border: 1px solid #eee;
-	transition: all 0.3s ease;
-	display: flex;
-	flex-direction: column;
-	justify-content: space-between;
-	box-shadow: var(--card-shadow);
-}
-
-	.adobe-card:hover {
-		transform: translateY(-5px);
-		border-color: var(--adobe-blue);
-	}
-
-/* Card-ul de Pachet (Composite) */
-.bundle-card {
-	background: linear-gradient(145deg, #ffffff, #f0f7ff);
-	border-left: 6px solid var(--adobe-blue);
-}
-
-/* Iconițe / Emojis */
-.app-icon {
-	font-size: 2.5rem;
-	margin-bottom: 15px;
-	display: block;
-}
-
-/* Tipografie în card */
-.product-name {
-	font-weight: 700;
-	font-size: 1.25rem;
-	margin-bottom: 8px;
-	color: #111;
-}
-
-.product-price {
-	font-size: 1.4rem;
-	font-weight: 800;
+.brand-tagline {
 	color: var(--adobe-blue);
-	margin: 15px 0;
-}
-
-/* Butoane stilizate */
-.adobe-btn {
-	display: inline-block;
-	padding: 10px 20px;
-	border-radius: 20px;
-	font-weight: 600;
-	text-decoration: none;
-	text-align: center;
-	transition: 0.2s;
-	border: none;
-	cursor: pointer;
-}
-
-.adobe-btn-primary {
-	background-color: var(--adobe-blue);
-	color: white !important;
-}
-
-	.adobe-btn-primary:hover {
-		background-color: #0d5bb5;
-	}
-
-.adobe-btn-outline {
-	border: 1.5px solid var(--adobe-blue);
-	color: var(--adobe-blue) !important;
-	background: transparent;
-}
-
-	.adobe-btn-outline:hover {
-		background: #f0f7ff;
-	}
-
-/* Badge pentru pachete */
-.promo-badge {
-	background: var(--adobe-blue);
-	color: white;
-	font-size: 0.7rem;
-	padding: 4px 10px;
-	border-radius: 10px;
+	font-weight: 700;
 	text-transform: uppercase;
-	width: fit-content;
-	margin-bottom: 10px;
+	font-size: 0.85rem;
+	letter-spacing: 1.5px;
 }
 
-/* Ajustări pentru centrare pe Home */
-.hero-main-title {
+.main-headline {
+	font-size: 3.5rem;
 	font-weight: 800;
-	line-height: 1.1;
-	color: #000;
+	margin: 15px 0;
+	color: var(--dark-text);
+	letter-spacing: -1px;
 }
 
-.hero-description {
+.sub-headline {
 	font-size: 1.25rem;
-	color: #656565;
+	color: var(--gray-text);
+	max-width: 650px;
+	margin: 0 auto 40px;
 	line-height: 1.5;
 }
 
-/* Forțăm grid-ul să fie centrat dacă sunt puține elemente */
-.product-grid {
-	justify-content: center;
+/* BUTONUL CTA - REPARAT (nu mai este pe tot ecranul) */
+.adobe-btn-main {
+	display: inline-block;
+	background-color: var(--adobe-blue);
+	color: white !important;
+	padding: 14px 35px;
+	border-radius: 30px;
+	font-weight: 600;
+	text-decoration: none;
+	transition: all 0.3s;
+	box-shadow: 0 4px 15px rgba(20, 115, 230, 0.2);
 }
 
-/* Eliminăm marginea implicită a footer-ului care poate strica designul */
-footer {
-	margin-top: 50px;
+	.adobe-btn-main:hover {
+		transform: translateY(-2px);
+		background-color: #0d5bb5;
+		box-shadow: 0 6px 20px rgba(20, 115, 230, 0.3);
+	}
+
+/* --- PRODUCT GRID --- */
+.featured-apps {
+	padding: 80px 0;
+	background-color: white;
 }
+
+.section-title {
+	text-align: center;
+	font-weight: 800;
+	margin-bottom: 50px;
+	font-size: 2rem;
+}
+
+.product-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	gap: 30px;
+	max-width: 1100px;
+	margin: 0 auto;
+}
+
+/* CARDURI RAFINATE */
+.adobe-card-refined {
+	background: #ffffff;
+	border: 1px solid #eaeaea;
+	border-radius: 16px;
+	padding: 30px;
+	text-align: center;
+	transition: 0.3s;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+	.adobe-card-refined:hover {
+		border-color: var(--adobe-blue);
+		box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+		transform: translateY(-5px);
+	}
+
+.app-icon-wrapper {
+	font-size: 3rem;
+	margin-bottom: 20px;
+}
+
+.app-name {
+	font-weight: 700;
+	font-size: 1.25rem;
+	margin-bottom: 10px;
+}
+
+.app-price {
+	font-weight: 700;
+	color: var(--adobe-blue);
+	font-size: 1.1rem;
+}
+
+.adobe-btn-link {
+	color: var(--adobe-blue);
+	text-decoration: none;
+	font-weight: 600;
+	font-size: 0.9rem;
+}
+
+	.adobe-btn-link:hover {
+		text-decoration: underline;
+	}

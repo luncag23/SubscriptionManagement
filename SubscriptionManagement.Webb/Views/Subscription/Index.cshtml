@@ -1,5 +1,5 @@
-﻿@using DataContract.DTOs
-
+﻿@model IEnumerable<Domain.Entities.SubscriptionPlan>
+@using DataContract.DTOs
 
 @section Styles {
     <link rel="stylesheet" href="~/css/subscription.css" />
@@ -11,8 +11,8 @@
 
         .order-summary {
             background: #f8f9fa;
-            padding: 20px;
-            border-radius: 12px;
+            padding: 25px;
+            border-radius: 15px;
             border: 1px dashed #1473E6;
             margin-bottom: 25px;
         }
@@ -23,29 +23,21 @@
             margin-bottom: 10px;
         }
 
-        .summary-label {
-            color: #666;
-            font-weight: 500;
-        }
-
-        .summary-value {
-            font-weight: 700;
-            color: #222;
-        }
-
         .total-price {
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             color: #1473E6;
+            font-weight: 800;
         }
 
         .access-option {
             border: 2px solid #eee;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 10px;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 12px;
             cursor: pointer;
             transition: 0.3s;
             display: block;
+            position: relative;
         }
 
             .access-option:hover {
@@ -54,124 +46,118 @@
             }
 
             .access-option input {
-                margin-right: 10px;
-                transform: scale(1.2);
+                margin-right: 12px;
+                transform: scale(1.3);
             }
+
+        .discount-badge {
+            background: #28a745;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            margin-left: 10px;
+        }
     </style>
 }
 
 <div class="checkout-container">
+    @* --- AFIȘARE SUCCES (DESIGN MODERN) --- *@
+    @if (ViewBag.Message != null)
+    {
+        <div class="success-card">
+            <div class="success-icon">✅</div>
+            <h2 style="color: #28a745; font-weight: 800;">Abonament Activat!</h2>
+            <p class="success-details">
+                @ViewBag.Message.Split('|')[0] <br />
+                <span style="font-weight: 600; color: #1473E6;">@(ViewBag.Message.Contains("|") ? ViewBag.Message.Split('|')[1] : "")</span>
+            </p>
+            @if (ViewBag.LicenseKey != null)
+            {
+                <div class="license-box">
+                    <span class="license-label">Cheia ta de activare</span>
+                    <div class="license-key">@ViewBag.LicenseKey</div>
+                </div>
+            }
+            <div style="margin-top: 25px;">
+                <a href="/" class="adobe-btn adobe-btn-primary" style="width: auto; padding: 10px 30px;">Mergi la Home</a>
+            </div>
+        </div>
+    }
+
     <div class="sub-card">
-        <h1 style="text-align:left; margin-bottom:10px;">Finalizare Comandă</h1>
-        <p style="color:#666">Revizuiește selecția și alege tipul de abonament dorit.</p>
+        <h1>Finalizare Comandă</h1>
+        <p style="color:#666">Configurați accesul pentru selecția dvs.</p>
         <hr />
 
-        @* 1. REZUMAT PRODUS (Calculat prin Composite Pattern) *@
+        @* 1. REZUMAT PRODUS (COMPOSITE) *@
         <div class="order-summary">
             <div class="summary-row">
-                <span class="summary-label">Produs/Pachet selectat:</span>
-                <span class="summary-value">@ViewBag.SelectedProductName</span>
+                <span style="color:#666">Produs/Pachet:</span>
+                <span style="font-weight:700">@ViewBag.SelectedProductName</span>
             </div>
             <div class="summary-row">
-                <span class="summary-label">Preț de bază (Monthly):</span>
-                <span class="summary-value total-price">@ViewBag.BasePrice.ToString("F2") RON</span>
+                <span style="color:#666">Cost lunar standard:</span>
+                <span class="total-price">@ViewBag.BasePrice.ToString("F2") RON</span>
             </div>
         </div>
 
-        @* MESAJE DE EROARE / SUCCES *@
         @if (ViewBag.Error != null)
         {
             <div class="alert alert-error"><strong>✕</strong> @ViewBag.Error</div>
         }
-        @* --- ADAUGĂ ACEST BLOC PENTRU SUCCES --- *@
-        @if (ViewBag.Message != null)
-        {
-            <div class="success-card">
-                <div class="success-icon">Check Circle ✅</div>
-                <h2 style="color: #28a745; font-weight: 800;">Abonament Activat!</h2>
-
-                <p class="success-details">
-                    @ViewBag.Message.Split('|')[0] <br />
-                    <span style="font-weight: 600; color: #1473E6;">@ViewBag.Message.Split('|')[1]</span>
-                </p>
-
-                @if (ViewBag.LicenseKey != null)
-                {
-                    <div class="license-box">
-                        <span class="license-label">Cheia ta de activare unică</span>
-                        <div class="license-key">@ViewBag.LicenseKey</div>
-                    </div>
-                    <small class="text-muted">Păstrează acest cod pentru a activa aplicațiile pe dispozitivele tale.</small>
-                }
-
-                <div style="margin-top: 25px;">
-                    <a href="/" class="adobe-btn adobe-btn-outline" style="width: auto; padding: 10px 30px;">Mergi la aplicațiile mele</a>
-                </div>
-            </div>
-        }
-        @* --------------------------------------- *@
 
         <form asp-action="Subscribe" method="post">
-            @* ID-ul aplicației sau pachetului ales anterior *@
             <input type="hidden" name="appId" value="@ViewBag.SelectedAppId" />
 
-            @* 2. SELECȚIE TIP ACCES (Destinația Factory Method) *@
+            @* 2. SELECȚIE DINAMICĂ PLANURI (PROTOTYPE RESULTS) *@
             <div class="form-section">
-                <span class="pattern-badge">Pattern: Factory Method</span>
-                <label>Selectează Planul de Acces:</label>
+                <span class="pattern-badge">Pattern: Prototype (Dynamic)</span>
+                <label class="mb-3 d-block"><b>Alege durata și tipul de acces:</b></label>
 
-                <label class="access-option">
-                    <input type="radio" name="accessType" value="free" checked>
-                    <span><b>Free Trial</b> (Acces complet 7 zile) - 0.00 RON</span>
-                </label>
+                @if (Model != null)
+                {
+                    foreach (var plan in Model)
+                    {
+                        decimal displayPrice = plan.MonthlyPrice;
+                        // Dacă e un plan lunar/anual bazat pe produs, calculăm prețul relativ la BasePrice
+                        if (plan.Name.ToLower().Contains("anual")) { displayPrice = ViewBag.BasePrice * 10; }
+                        else if (plan.Name.ToLower().Contains("free")) { displayPrice = 0; }
+                        else { displayPrice = ViewBag.BasePrice; }
 
-                <label class="access-option">
-                    <input type="radio" name="accessType" value="monthly">
-                    <span><b>Lunar</b> (30 zile) - @ViewBag.BasePrice.ToString("F2") RON / lună</span>
-                </label>
-
-                <label class="access-option">
-                    <input type="radio" name="accessType" value="annual">
-                    <span><b>Anual</b> (365 zile) - @((ViewBag.BasePrice * 10).ToString("F2")) RON / an <small style="color:green">(2 luni GRATIS)</small></span>
-                </label>
+                        <label class="access-option">
+                            <input type="radio" name="planId" value="@plan.Id" @(plan.MonthlyPrice == 0 ? "checked" : "") required>
+                            <span>
+                                <b>@plan.Name</b> -
+                                <span style="font-weight:700; color:var(--adobe-blue)">
+                                    @(displayPrice == 0 ? "GRATUIT" : displayPrice.ToString("F2") + " RON")
+                                </span>
+                                @if (plan.Name.ToLower().Contains("anual"))
+                                {
+                                    <span class="discount-badge">2 LUNI CADOU</span>
+                                }
+                                <br />
+                                <small class="text-muted">@plan.Description (@plan.MaxStorageGB GB Cloud Included)</small>
+                            </span>
+                        </label>
+                    }
+                }
             </div>
 
-            @* 3. METODA DE PLATĂ (Abstract Factory) *@
+            @* 3. METODA DE PLATĂ (ABSTRACT FACTORY) *@
             <div class="form-section">
                 <span class="pattern-badge">Pattern: Abstract Factory</span>
-                <label>Alege Metoda de Plată:</label>
-
+                <label>Metodă de Plată:</label>
                 <div class="payment-grid">
-                    <label class="payment-option">
-                        <input type="radio" name="paymentType" value="google" checked>
-                        <span><b>Google Pay</b> (G-Wallet Express)</span>
-                    </label>
-
-                    <label class="payment-option">
-                        <input type="radio" name="paymentType" value="paypal">
-                        <span><b>PayPal</b> (Transfer Instant)</span>
-                    </label>
-
-                    <label class="payment-option">
-                        <input type="radio" name="paymentType" value="card">
-                        <span><b>Credit Card</b> (Plată securizată)</span>
-                    </label>
+                    <label class="payment-option"><input type="radio" name="paymentType" value="google" checked><span>Google Pay</span></label>
+                    <label class="payment-option"><input type="radio" name="paymentType" value="paypal"><span>PayPal</span></label>
+                    <label class="payment-option"><input type="radio" name="paymentType" value="card"><span>Credit Card</span></label>
                 </div>
             </div>
 
-            <button type="submit" class="btn-process" style="height: 60px; font-size: 1.2rem;">
-                Confirmă și Activează Licența
+            <button type="submit" class="btn-process" style="height: 60px; font-size: 1.2rem; margin-top: 20px;">
+                Finalizează Achiziția
             </button>
         </form>
-
-        <div class="footer-info">
-            <hr />
-            <p>
-                <b>Logica din spate:</b>
-                Suma este preluată din <i>Composite</i>, durata este decisă de <i>Factory Method</i>,
-                iar procesarea este delegată către <i>Abstract Factory</i>.
-                Prețul final va fi convertit în timp real via <i>Currency Adapter</i>.
-            </p>
-        </div>
     </div>
 </div>

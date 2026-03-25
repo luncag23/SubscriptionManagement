@@ -4,94 +4,121 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Adobe Subscription Mgmt</title>
+
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    @* Secțiunea Styles pentru paginile care au CSS-uri proprii (ca subscription.css) *@
+
+    @* Secțiunea pentru CSS-uri specifice paginilor (ca admin.css sau subscription.css) *@
     @await RenderSectionAsync("Styles", required: false)
 
     <style>
+        :root {
+            --adobe-red: #FA0F00;
+            --adobe-blue: #1473E6;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        .navbar {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            border-bottom: 1px solid #eee !important;
+        }
+
         .navbar-brand {
-            font-weight: 800;
-            color: #FA0F00 !important;
+            font-weight: 900;
+            color: var(--adobe-red) !important;
+            letter-spacing: -1px;
+            font-size: 1.5rem;
         }
 
         .nav-link {
+            color: #222;
             font-weight: 500;
+            margin: 0 5px;
         }
+
+            .nav-link:hover {
+                color: var(--adobe-blue) !important;
+            }
 
         .admin-badge {
             background: #f0f7ff;
-            border-radius: 5px;
+            color: var(--adobe-blue) !important;
+            font-weight: 700;
+            border-radius: 20px;
+            padding: 6px 15px !important;
+            border: 1px solid #cce4ff;
+            transition: 0.2s;
+        }
+
+            .admin-badge:hover {
+                background: var(--adobe-blue) !important;
+                color: white !important;
+            }
+
+        .user-greeting {
+            color: #666;
+            font-size: 0.9rem;
         }
     </style>
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white mb-3">
+            <div class="container-fluid px-4">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ADOBE</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Subscription" asp-action="Index">Abonamente</a>
+                            <a class="nav-link" asp-controller="Home" asp-action="Products">Produse</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Subscription" asp-action="Index">Abonamente</a>
                         </li>
 
-                        @* --- ADMIN CONSOLE DROPDOWN (Vibil doar dacă e logat) --- *@
-                        @if (User.Identity.IsAuthenticated)
+                        @* --- BUTON ADMIN (Vibil doar pentru Admin) --- *@
+                        @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
                         {
-                            <li class="nav-item dropdown admin-badge">
-                                <a class="nav-link dropdown-toggle text-primary" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <li class="nav-item ms-2">
+                                <a class="nav-link admin-badge" asp-controller="Admin" asp-action="Index">
                                     ⚙️ Admin Console
                                 </a>
-                                <ul class="dropdown-menu shadow border-0" aria-labelledby="adminDropdown">
-                                    <li>
-                                        <a class="dropdown-item" asp-controller="Admin" asp-action="Catalog">
-                                            📦 Catalog & Composite
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" asp-controller="Admin" asp-action="CreateApp">
-                                            ➕ Adaugă Aplicație
-                                        </a>
-                                    </li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <small class="dropdown-header">Pattern Testing</small>
-                                    </li>
-                                </ul>
                             </li>
                         }
                     </ul>
 
-                    @* --- SECȚIUNE UTILIZATOR (DREAPTA) --- *@
-                    <ul class="navbar-nav">
+                    @* --- SECȚIUNE UTILIZATOR --- *@
+                    <ul class="navbar-nav align-items-center">
                         @if (User.Identity.IsAuthenticated)
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark font-weight-bold" asp-controller="Profile" asp-action="Edit">
-                                    👋 Bună, @User.Identity.Name
+                            <li class="nav-item me-3">
+                                <a class="nav-link p-0 user-greeting" asp-controller="Profile" asp-action="Edit">
+                                    👋 Bună, <span class="text-dark fw-bold">@User.Identity.Name</span>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <form asp-controller="Account" asp-action="Logout" method="post" class="form-inline">
-                                    <button type="submit" class="nav-link btn btn-link text-danger border-0" style="text-decoration:none">Logout</button>
+                                <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger px-3" style="border-radius:20px;">Logout</button>
                                 </form>
                             </li>
                         }
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a>
+                                <a class="nav-link" asp-controller="Account" asp-action="Login">Login</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-primary font-weight-bold" asp-controller="Account" asp-action="Register">Sign Up</a>
+                            <li class="nav-item ms-2">
+                                <a class="btn btn-primary btn-sm px-4" style="border-radius:20px; background-color:var(--adobe-blue)" asp-controller="Account" asp-action="Register">Sign Up</a>
                             </li>
                         }
                     </ul>
@@ -100,15 +127,16 @@
         </nav>
     </header>
 
-    <div class="container">
-        <main role="main" class="pb-3">
+    @* Containerul de conținut: eliminăm 'container' fix pentru ca AdminLayout să poată fi full-width *@
+    <div class="content-wrapper">
+        <main role="main">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - SubscriptionManagement - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <footer class="border-top footer text-muted mt-5 py-3">
+        <div class="container text-center">
+            &copy; 2026 - Adobe Subscription Management - <a asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
 

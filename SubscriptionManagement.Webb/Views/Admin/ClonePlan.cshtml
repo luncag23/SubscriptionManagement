@@ -1,0 +1,43 @@
+﻿@model Domain.Entities.SubscriptionPlan
+@{
+    Layout = "_AdminLayout"; // Aceasta este schimbarea principală
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/subscription.css" />
+}
+
+<div class="sub-card" style="max-width: 600px; margin: 0;">
+    <span class="pattern-badge">Pattern: Prototype</span>
+    <h2>Configurează Planul Clonat</h2>
+    <p class="text-muted">Modifică datele copiate din planul original: <b>@Model.Name</b></p>
+    <hr />
+
+    <form asp-action="SaveClonedPlan" method="post">
+        @* Păstrăm datele din prototip într-un mod editabil *@
+        <div class="form-section">
+            <label>Nume Nou Plan</label>
+            <input type="text" asp-for="Name" class="custom-select" required />
+        </div>
+
+        <div class="form-section">
+            <label>Preț Nou (RON)</label>
+            <input type="number" asp-for="MonthlyPrice" class="custom-select" step="0.01" required />
+        </div>
+
+        <div class="form-section">
+            <label>Descriere</label>
+            <textarea asp-for="Description" class="custom-select" rows="3"></textarea>
+        </div>
+
+        <div class="form-section">
+            <label>Stocare (GB)</label>
+            <input type="number" asp-for="MaxStorageGB" class="custom-select" />
+        </div>
+
+        <input type="hidden" asp-for="IsActive" value="true" />
+
+        <button type="submit" class="adobe-btn adobe-btn-primary">Salvează Planul Clonat în DB</button>
+        <a asp-action="SubscriptionPlans" style="display:block; text-align:center; margin-top:15px; color:#666">Anulează</a>
+    </form>
+</div>

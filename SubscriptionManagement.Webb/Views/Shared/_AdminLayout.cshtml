@@ -1,0 +1,54 @@
+﻿@{
+    Layout = "_Layout";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin.css" />
+    @await RenderSectionAsync("Styles", required: false)
+}
+
+<div class="admin-wrapper">
+    <nav class="admin-sidebar">
+        <div class="sidebar-header">Management</div>
+        <ul class="sidebar-nav">
+            <li>
+                <a asp-controller="Admin" asp-action="Index" class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")">
+                    <span class="sidebar-icon">📊</span> Dashboard
+                </a>
+            </li>
+            <li>
+                <a asp-controller="Admin" asp-action="Catalog" class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Catalog" ? "active" : "")">
+                    <span class="sidebar-icon">📦</span> Catalog Produse
+                </a>
+            </li>
+            <li>
+                <a asp-controller="Admin" asp-action="CreateApp" class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "CreateApp" ? "active" : "")">
+                    <span class="sidebar-icon">🎨</span> Adaugă Aplicație
+                </a>
+            </li>
+            <li>
+                <a asp-controller="Admin" asp-action="CreateBundle" class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "CreateBundle" ? "active" : "")">
+                    <span class="sidebar-icon">🎁</span> Creează Pachet
+                </a>
+            </li>
+            <li>
+                <a asp-controller="Admin" asp-action="SubscriptionPlans" class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "SubscriptionPlans" ? "active" : "")">
+                    <span class="sidebar-icon">⏳</span> Planuri de Acces
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-header" style="margin-top:30px;">Setări Admin</div>
+        <ul class="sidebar-nav">
+            <li>
+                <a asp-controller="Admin" asp-action="Settings" class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Settings" ? "active" : "")">
+                    <span class="sidebar-icon">⚙️</span> Setări Sistem
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <main class="admin-main-content">
+        @RenderBody()
+    </main>
+</div>
