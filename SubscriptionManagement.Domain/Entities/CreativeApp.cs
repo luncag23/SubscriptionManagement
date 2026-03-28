@@ -9,8 +9,10 @@ namespace Domain.Entities
 		public string Name { get; set; }
 		public decimal BasePrice { get; set; }
 
-		// O aplicație poate fi parte din mai multe pachete (Assignments ca 'App')
-		// Un pachet poate conține mai multe aplicații (Assignments ca 'Bundle')
+		// CÂMPURI NOI
+		public string? Description { get; set; }
+		public string? ImageUrl { get; set; }
+
 		public List<AppBundleAssignment> AssignmentsAsBundle { get; set; } = new();
 		public List<AppBundleAssignment> AssignmentsAsApp { get; set; } = new();
 	}

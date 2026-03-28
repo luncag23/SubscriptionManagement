@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.9" />
     <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="10.0.5" />
   </ItemGroup>
 
@@ -14,6 +15,10 @@
     <ProjectReference Include="..\DataContract\DataContract.csproj" />
     <ProjectReference Include="..\SubscriptionManagement.Domain\Domain.csproj" />
     <ProjectReference Include="..\SubscriptionManagement.Infrastructure\DAL.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="State\" />
   </ItemGroup>
 
 </Project>

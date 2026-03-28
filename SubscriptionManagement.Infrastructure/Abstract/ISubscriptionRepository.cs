@@ -31,5 +31,10 @@ namespace DAL.Abstract
 		Task UpdateAppAsync(CreativeApp app);
 		Task UpdateBundleAssignmentsAsync(Guid bundleId, List<Guid> selectedAppIds);
 		Task DeleteAppAsync(Guid id);
+		Task<IEnumerable<Subscription>> GetAllSubscriptionsAsync();
+
+		Task<Subscription> GetSubscriptionByIdAsync(Guid id);
+		Task UpdateSubscriptionAsync(Subscription subscription);
+
 	}
 }

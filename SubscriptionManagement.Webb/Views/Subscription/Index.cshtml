@@ -63,27 +63,34 @@
 
 <div class="checkout-container">
     @* --- AFIȘARE SUCCES (DESIGN MODERN) --- *@
-    @if (ViewBag.Message != null)
-    {
-        <div class="success-card">
-            <div class="success-icon">✅</div>
-            <h2 style="color: #28a745; font-weight: 800;">Abonament Activat!</h2>
-            <p class="success-details">
-                @ViewBag.Message.Split('|')[0] <br />
-                <span style="font-weight: 600; color: #1473E6;">@(ViewBag.Message.Contains("|") ? ViewBag.Message.Split('|')[1] : "")</span>
-            </p>
-            @if (ViewBag.LicenseKey != null)
-            {
-                <div class="license-box">
-                    <span class="license-label">Cheia ta de activare</span>
-                    <div class="license-key">@ViewBag.LicenseKey</div>
-                </div>
-            }
-            <div style="margin-top: 25px;">
-                <a href="/" class="adobe-btn adobe-btn-primary" style="width: auto; padding: 10px 30px;">Mergi la Home</a>
-            </div>
-        </div>
-    }
+     @if (ViewBag.Message != null)
+     {
+          // Verificăm dacă mesajul conține cuvântul "Blocat" pentru a schimba culoarea
+          bool isBlocked = ViewBag.Message.Contains("Blocat");
+
+          <div class="success-card" style="@(isBlocked ? "border-color: #ffc107; box-shadow: 0 10px 30px rgba(255, 193, 7, 0.15);" : "")">
+               <div class="success-icon">@(isBlocked ? "⚠️" : "✅")</div>
+               <h2 style="color: @(isBlocked ? "#856404" : "#28a745"); font-weight: 800;">
+                    @(isBlocked ? "Tranzacție Oprită" : "Abonament Activat!")
+               </h2>
+
+               <p class="success-details">
+                    @ViewBag.Message.Split('|')[0] <br />
+                    @if (ViewBag.Message.Contains("|"))
+                    {
+                         <span style="font-weight: 600; color: #1473E6;">@ViewBag.Message.Split('|')[1]</span>
+                    }
+               </p>
+
+               @if (!isBlocked && ViewBag.LicenseKey != null)
+               {
+                    <div class="license-box">
+                         <span class="license-label">Cheia ta de activare</span>
+                         <div class="license-key">@ViewBag.LicenseKey</div>
+                    </div>
+               }
+          </div>
+     }
 
     <div class="sub-card">
         <h1>Finalizare Comandă</h1>
@@ -117,30 +124,30 @@
 
                 @if (Model != null)
                 {
-                    foreach (var plan in Model)
-                    {
-                        decimal displayPrice = plan.MonthlyPrice;
-                        // Dacă e un plan lunar/anual bazat pe produs, calculăm prețul relativ la BasePrice
-                        if (plan.Name.ToLower().Contains("anual")) { displayPrice = ViewBag.BasePrice * 10; }
-                        else if (plan.Name.ToLower().Contains("free")) { displayPrice = 0; }
-                        else { displayPrice = ViewBag.BasePrice; }
+                         @foreach (var plan in Model)
+                         {
+                              // CALCUL DINAMIC: Preț Produs (Composite) x Multiplicator Plan (Prototype)
+                              decimal displayPrice = ViewBag.BasePrice * plan.PriceMultiplier;
 
-                        <label class="access-option">
-                            <input type="radio" name="planId" value="@plan.Id" @(plan.MonthlyPrice == 0 ? "checked" : "") required>
-                            <span>
-                                <b>@plan.Name</b> -
-                                <span style="font-weight:700; color:var(--adobe-blue)">
-                                    @(displayPrice == 0 ? "GRATUIT" : displayPrice.ToString("F2") + " RON")
-                                </span>
-                                @if (plan.Name.ToLower().Contains("anual"))
-                                {
-                                    <span class="discount-badge">2 LUNI CADOU</span>
-                                }
-                                <br />
-                                <small class="text-muted">@plan.Description (@plan.MaxStorageGB GB Cloud Included)</small>
-                            </span>
-                        </label>
-                    }
+                              <label class="access-option">
+                                   @* Verificăm dacă e Monthly pentru a fi preselectat *@
+                                   <input type="radio" name="planId" value="@plan.Id" @(plan.PlanTypeCode == "monthly" ? "checked" : "") required>
+
+                                   <span>
+                                        <b>@plan.Name</b> -
+                                        <span style="font-weight:700; color:var(--adobe-blue)">
+                                             @(displayPrice == 0 ? "GRATUIT" : displayPrice.ToString("F2") + " RON")
+                                        </span>
+
+                                        @if (plan.PlanTypeCode == "annual")
+                                        {
+                                             <span class="discount-badge">2 LUNI CADOU</span>
+                                        }
+                                        <br />
+                                        <small class="text-muted">@plan.Description (@plan.MaxStorageGB GB Cloud Included)</small>
+                                   </span>
+                              </label>
+                         }
                 }
             </div>
 

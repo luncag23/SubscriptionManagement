@@ -1,136 +1,90 @@
 ﻿using BusinessLogic.Composite;
+using BusinessLogic.Proxy;
 using DAL.Abstract;
 using Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace SubscriptionManagement.Web.Controllers
 {
-	[Authorize] // Momentan accesibil pentru orice utilizator logat (ulterior restricționat prin Proxy/Role)
+	[Authorize(Roles = "Admin")]
 	public class AdminController : Controller
 	{
 		private readonly ISubscriptionRepository _repository;
 		private readonly CreativeToolAssembly _assembly;
+		private readonly IAdminService _adminProxy;
 
-		public AdminController(ISubscriptionRepository repository, CreativeToolAssembly assembly)
+		public AdminController(
+			ISubscriptionRepository repository,
+			CreativeToolAssembly assembly,
+			IAdminService adminProxy)
 		{
 			_repository = repository;
 			_assembly = assembly;
+			_adminProxy = adminProxy;
 		}
 
-		// --- DASHBOARD ---
 		public async Task<IActionResult> Index()
 		{
 			var allApps = await _repository.GetAllAppsAsync();
 			ViewBag.TotalApps = allApps.Count(a => a.AssignmentsAsBundle == null || !a.AssignmentsAsBundle.Any());
 			ViewBag.TotalBundles = allApps.Count(a => a.AssignmentsAsBundle != null && a.AssignmentsAsBundle.Any());
-
 			return View();
 		}
 
-		[HttpGet]
-		public IActionResult Settings()
-		{
-			return View();
-		}
-
-		// --- GESTIUNE PLANURI DE ACCES (PROTOTYPE PATTERN) ---
-
-		[HttpGet]
-		public async Task<IActionResult> SubscriptionPlans()
-		{
-			var plans = await _repository.GetAllPlansAsync();
-
-			// Debug rapid: Pune un breakpoint aici să vezi dacă 'plans' are elemente
-			return View(plans);
-		}
-
-		[HttpGet]
-		public async Task<IActionResult> ClonePlan(Guid id)
-		{
-			var originalPlan = await _repository.GetPlanByIdAsync(id);
-			if (originalPlan == null) return NotFound();
-
-			// EXECUTĂM PROTOTYPE PATTERN:
-			// Obiectul original se clonează singur în memorie
-			var clonedPlan = originalPlan.Clone();
-
-			// Sugerăm un nume nou pentru a diferenția clona
-			clonedPlan.Name = "Copie - " + originalPlan.Name;
-
-			// Trimitem clona către View pentru a fi editată înainte de salvarea finală
-			return View(clonedPlan);
-		}
-
-		[HttpPost]
-		public async Task<IActionResult> SaveClonedPlan(SubscriptionPlan model)
-		{
-			try
-			{
-				// Resetăm ID-ul pentru a fi siguri că EF îl tratează ca o entitate nouă
-				model.Id = Guid.NewGuid();
-
-				await _repository.AddSubscriptionPlanAsync(model);
-				return RedirectToAction("SubscriptionPlans", new { message = "Plan creat prin clonare!" });
-			}
-			catch (Exception ex)
-			{
-				ViewBag.Error = "Eroare la salvarea clonei: " + ex.Message;
-				return View("ClonePlan", model);
-			}
-		}
-
-		// --- CATALOG PRODUSE (COMPOSITE PATTERN) ---
-
+		// --- CATALOG ---
 		[HttpGet]
 		public async Task<IActionResult> Catalog()
 		{
 			var allApps = await _repository.GetAllAppsAsync();
+			var displayBundles = new List<dynamic>();
 
-			// Filtrare Stânga: Aplicații (Frunze)
-			var individualApps = allApps
-				.Where(a => a.AssignmentsAsBundle == null || !a.AssignmentsAsBundle.Any())
-				.ToList();
-
-			// Filtrare Dreapta: Pachete (Compozite)
-			var bundleEntities = allApps
-				.Where(a => a.AssignmentsAsBundle != null && a.AssignmentsAsBundle.Any())
-				.ToList();
-
-			var calculatedBundles = new List<dynamic>();
+			var bundleEntities = allApps.Where(a => a.AssignmentsAsBundle.Any()).ToList();
 			foreach (var b in bundleEntities)
 			{
 				var composite = await _assembly.LoadToolHierarchy(b.Id);
-				if (composite != null)
+				displayBundles.Add(new
 				{
-					calculatedBundles.Add(new
-					{
-						Id = b.Id,
-						Name = composite.GetName(),
-						Price = composite.GetPrice()
-					});
-				}
+					Id = b.Id,
+					Name = composite.GetName(),
+					Price = composite.GetPrice(),
+					ImageUrl = b.ImageUrl // <--- ACEASTA TREBUIE SĂ EXISTE AICI
+				});
 			}
 
-			ViewBag.CalculatedBundles = calculatedBundles;
-			return View(individualApps);
+			ViewBag.CalculatedBundles = displayBundles;
+			return View(allApps.Where(a => !a.AssignmentsAsBundle.Any()).ToList());
 		}
 
-		// --- CRUD APLICAȚII ---
+		// --- GESTIUNE APLICAȚII (LEAFS) ---
 
 		[HttpGet]
 		public IActionResult CreateApp() => View();
 
 		[HttpPost]
-		public async Task<IActionResult> CreateApp(string name, decimal price)
+		public async Task<IActionResult> CreateApp(string name, decimal price, string description, IFormFile imageFile)
 		{
-			var newApp = new CreativeApp { Id = Guid.NewGuid(), Name = name, BasePrice = price };
-			await _repository.AddAppAsync(newApp);
-			return RedirectToAction("Catalog");
+			try
+			{
+				// 1. Procesăm imaginea
+				string imageUrl = await UploadImage(imageFile) ?? "/images/apps/default-app.png";
+
+				// 2. Apelăm DOAR Proxy-ul (el va apela repository-ul în spate dacă ești Admin)
+				// Am adăugat description și imageUrl în apel
+				await _adminProxy.CreateApp(name, price, description, imageUrl);
+
+				return RedirectToAction("Catalog");
+			}
+			catch (Exception ex)
+			{
+				ViewBag.Error = ex.Message;
+				return View();
+			}
 		}
 
 		[HttpGet]
@@ -142,29 +96,70 @@ namespace SubscriptionManagement.Web.Controllers
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> EditApp(CreativeApp model)
+		public async Task<IActionResult> EditApp(CreativeApp model, IFormFile imageFile)
 		{
 			var app = await _repository.GetAppByIdAsync(model.Id);
 			if (app == null) return NotFound();
 
 			app.Name = model.Name;
 			app.BasePrice = model.BasePrice;
+			app.Description = model.Description;
+
+			// Dacă s-a încărcat o imagine nouă, o înlocuim
+			var newImageUrl = await UploadImage(imageFile);
+			if (newImageUrl != null) app.ImageUrl = newImageUrl;
 
 			await _repository.UpdateAppAsync(app);
 			return RedirectToAction("Catalog");
 		}
 
-		// --- CRUD PACHETE ---
+		// --- GESTIUNE PACHETE (COMPOSITES) ---
 
 		[HttpGet]
 		public IActionResult CreateBundle() => View();
 
+		// --- GESTIUNE PACHETE (POST) ---
+
 		[HttpPost]
-		public async Task<IActionResult> CreateBundle(string name)
+		public async Task<IActionResult> CreateBundle(string name, string description, IFormFile imageFile)
 		{
-			var newBundle = new CreativeApp { Id = Guid.NewGuid(), Name = name, BasePrice = 0 };
-			await _repository.AddAppAsync(newBundle);
-			return RedirectToAction("EditBundle", new { id = newBundle.Id });
+			try
+			{
+				// 1. Upload imagine (folosind metoda helper de data trecută)
+				string imageUrl = await UploadImage(imageFile) ?? "/images/apps/default-bundle.png";
+
+				// 2. Creăm pachetul via Proxy
+				var newId = await _adminProxy.CreateBundle(name, description);
+
+				// 3. Actualizăm imaginea (deoarece CreateBundle din Proxy pune default)
+				var bundle = await _repository.GetAppByIdAsync(newId);
+				bundle.ImageUrl = imageUrl;
+				await _repository.UpdateAppAsync(bundle);
+
+				return RedirectToAction("EditBundle", new { id = newId });
+			}
+			catch (Exception ex)
+			{
+				ViewBag.Error = ex.Message;
+				return View();
+			}
+		}
+
+		[HttpPost]
+		public async Task<IActionResult> EditBundle(CreativeApp model, IFormFile imageFile, List<Guid> selectedAppIds)
+		{
+			var bundle = await _repository.GetAppByIdAsync(model.Id);
+			if (bundle == null) return NotFound();
+
+			bundle.Name = model.Name;
+			bundle.Description = model.Description;
+
+			// Upload imagine nouă dacă a fost selectată
+			var newImagePath = await UploadImage(imageFile);
+			if (newImagePath != null) bundle.ImageUrl = newImagePath;
+
+			await _adminProxy.UpdateApp(bundle, selectedAppIds);
+			return RedirectToAction("Catalog");
 		}
 
 		[HttpGet]
@@ -173,44 +168,58 @@ namespace SubscriptionManagement.Web.Controllers
 			var bundle = await _repository.GetAppByIdAsync(id);
 			if (bundle == null) return NotFound();
 
+			// 1. Luăm TOATE aplicațiile din baza de date
 			var allApps = await _repository.GetAllAppsAsync();
-			ViewBag.AvailableApps = allApps
-				.Where(a => a.Id != id && (a.AssignmentsAsBundle == null || !a.AssignmentsAsBundle.Any()))
-				.ToList();
 
+			// 2. FILTRARE: Arătăm tot în afară de pachetul în care ne aflăm (să nu se conțină pe sine)
+			// De asemenea, ne asigurăm că 'allApps' nu este null
+			ViewBag.AvailableApps = allApps.Where(a => a.Id != id).ToList();
+
+			// 3. Luăm copiii actuali pentru a bifa checkbox-urile
 			var currentChildren = await _repository.GetChildrenForBundleAsync(id);
 			ViewBag.CurrentChildrenIds = currentChildren.Select(c => c.Id).ToList();
 
+			// 4. TRIMITEM modelul 'bundle' către pagină pentru datele de bază (nume/descriere)
 			return View(bundle);
 		}
 
-		[HttpPost]
-		public async Task<IActionResult> EditBundle(Guid id, string name, List<Guid> selectedAppIds)
+		
+
+		// --- ALTELE ---
+
+		[HttpGet]
+		public async Task<IActionResult> SubscriptionPlans()
 		{
-			var bundle = await _repository.GetAppByIdAsync(id);
-			bundle.Name = name;
-			await _repository.UpdateAppAsync(bundle);
-			await _repository.UpdateBundleAssignmentsAsync(id, selectedAppIds);
-
-			return RedirectToAction("Catalog");
+			return View(await _repository.GetAllPlansAsync());
 		}
-
-		// --- ȘTERGERE ---
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> DeleteElement(Guid id)
 		{
-			try
-			{
-				await _repository.DeleteAppAsync(id);
-				return RedirectToAction("Catalog", new { message = "Șters cu succes!" });
-			}
-			catch (Exception ex)
-			{
-				TempData["Error"] = "Eroare la ștergere: " + ex.Message;
-				return RedirectToAction("Catalog");
-			}
+			await _repository.DeleteAppAsync(id);
+			return RedirectToAction("Catalog");
 		}
+
+		// METODĂ PRIVATĂ PENTRU UPLOAD (Helper)
+		private async Task<string> UploadImage(IFormFile imageFile)
+		{
+			if (imageFile == null || imageFile.Length == 0) return null;
+
+			string folder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/apps");
+			if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
+
+			string fileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
+			string filePath = Path.Combine(folder, fileName);
+
+			using (var stream = new FileStream(filePath, FileMode.Create))
+			{
+				await imageFile.CopyToAsync(stream);
+			}
+			return "/images/apps/" + fileName;
+		}
+
+		[HttpGet]
+		public IActionResult Settings() => View();
 	}
 }

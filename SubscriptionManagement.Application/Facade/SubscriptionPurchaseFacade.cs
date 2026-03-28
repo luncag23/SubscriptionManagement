@@ -2,6 +2,9 @@
 using DAL.Abstract;
 using DataContract.DTOs;
 using Domain.Entities;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace BusinessLogic.Facade
 {
@@ -16,17 +19,21 @@ namespace BusinessLogic.Facade
 			_repository = repository;
 		}
 
-		// Aceasta este metoda simplificată ("Fațada")
-		public async Task<SubscriptionResponse> ExecutePurchaseFlow(Guid appId, string accessType, string paymentType, Guid userId)
+		// CORECTAT: Am adăugat 'Guid planId' în parametrii metodei pentru a-l putea trimite la Service
+		public async Task<SubscriptionResponse> ExecutePurchaseFlow(Guid appId, Guid planId, string planTypeCode, decimal multiplier, string paymentType, Guid userId)
 		{
-			// Fațada doar deleagă către Service-ul care are toată logica de pattern-uri
-			return await _subscriptionService.SubscribeUserAsync(appId, accessType, paymentType, userId);
+			// Pasăm planId-ul în ordinea cerută de interfața ISubscriptionService
+			return await _subscriptionService.SubscribeUserAsync(appId, planId, planTypeCode, multiplier, paymentType, userId);
 		}
 
-		// Putem pune și logica de preluare a planurilor aici pentru a curăța Controller-ul de tot
 		public async Task<IEnumerable<SubscriptionPlan>> GetAvailablePlans()
 		{
 			return await _repository.GetAllPlansAsync();
+		}
+
+		public async Task CancelSubscription(Guid id)
+		{
+			await _subscriptionService.CancelSubscriptionAsync(id);
 		}
 	}
 }

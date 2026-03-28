@@ -1,127 +1,177 @@
 ﻿:root {
 	--adobe-blue: #1473E6;
+	--adobe-blue-hover: #0d5bb5;
 	--dark-text: #2C2C2C;
 	--gray-text: #656565;
 	--light-bg: #F8F9FA;
+	--border-color: #eaeaea;
 }
 
-.home-wrapper {
-	background-color: white;
+/* --- LAYOUT GENERAL --- */
+.home-wrapper, .page-container {
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 40px 20px;
+	font-family: 'Segoe UI', Arial, sans-serif;
 }
 
-/* --- HERO SECTION --- */
+/* --- HERO SECTION (Pagina Home) --- */
 .hero-clean {
-	padding: 100px 20px;
+	padding: 80px 0;
+	text-align: center;
 	background: radial-gradient(circle at top right, #f0f7ff 0%, #ffffff 100%);
-}
-
-.brand-tagline {
-	color: var(--adobe-blue);
-	font-weight: 700;
-	text-transform: uppercase;
-	font-size: 0.85rem;
-	letter-spacing: 1.5px;
 }
 
 .main-headline {
 	font-size: 3.5rem;
 	font-weight: 800;
-	margin: 15px 0;
 	color: var(--dark-text);
-	letter-spacing: -1px;
+	margin: 20px 0;
 }
 
-.sub-headline {
-	font-size: 1.25rem;
-	color: var(--gray-text);
-	max-width: 650px;
-	margin: 0 auto 40px;
-	line-height: 1.5;
-}
-
-/* BUTONUL CTA - REPARAT (nu mai este pe tot ecranul) */
-.adobe-btn-main {
-	display: inline-block;
-	background-color: var(--adobe-blue);
-	color: white !important;
-	padding: 14px 35px;
-	border-radius: 30px;
-	font-weight: 600;
-	text-decoration: none;
-	transition: all 0.3s;
-	box-shadow: 0 4px 15px rgba(20, 115, 230, 0.2);
-}
-
-	.adobe-btn-main:hover {
-		transform: translateY(-2px);
-		background-color: #0d5bb5;
-		box-shadow: 0 6px 20px rgba(20, 115, 230, 0.3);
-	}
-
-/* --- PRODUCT GRID --- */
-.featured-apps {
-	padding: 80px 0;
-	background-color: white;
-}
-
+/* --- TITLURI SECȚIUNI --- */
 .section-title {
-	text-align: center;
 	font-weight: 800;
-	margin-bottom: 50px;
 	font-size: 2rem;
+	text-align: center;
+	margin: 60px 0 40px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 15px;
 }
 
+/* --- GRID ȘI CARDURI (Ambele Pagini) --- */
 .product-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-	gap: 30px;
-	max-width: 1100px;
-	margin: 0 auto;
+	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+	gap: 25px;
+	margin-bottom: 50px;
 }
 
-/* CARDURI RAFINATE */
-.adobe-card-refined {
+/* Stil comun pentru .adobe-card (Produse) și .adobe-card-refined (Home) */
+.adobe-card, .adobe-card-refined {
 	background: #ffffff;
-	border: 1px solid #eaeaea;
+	border: 1px solid var(--border-color);
 	border-radius: 16px;
 	padding: 30px;
-	text-align: center;
-	transition: 0.3s;
 	display: flex;
 	flex-direction: column;
-	justify-content: space-between;
+	justify-content: space-between; /* Împinge butoanele jos */
+	transition: all 0.3s ease;
+	min-height: 350px;
 }
 
-	.adobe-card-refined:hover {
+	.adobe-card:hover, .adobe-card-refined:hover {
 		border-color: var(--adobe-blue);
-		box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+		box-shadow: 0 10px 30px rgba(0,0,0,0.08);
 		transform: translateY(-5px);
 	}
 
-.app-icon-wrapper {
+/* Stil specific pentru Bundle (Pachete) */
+.bundle-card {
+	background: linear-gradient(145deg, #ffffff 0%, #f9fbff 100%);
+	border: 2px solid #e0eaff;
+}
+
+/* --- ELEMENTE INTERIOARE CARD --- */
+.app-icon, .app-icon-wrapper {
 	font-size: 3rem;
+	margin-bottom: 20px;
+	display: block;
+}
+
+.product-name, .app-name {
+	font-weight: 700;
+	font-size: 1.4rem;
+	margin-bottom: 10px;
+	color: var(--dark-text);
+}
+
+.product-price, .app-price {
+	font-size: 1.2rem;
+	font-weight: 700;
+	color: var(--dark-text);
 	margin-bottom: 20px;
 }
 
-.app-name {
+/* Badge pentru oferte */
+.promo-badge {
+	display: inline-block;
+	background: #E8F2FF;
+	color: var(--adobe-blue);
+	padding: 5px 15px;
+	border-radius: 20px;
+	font-size: 0.75rem;
 	font-weight: 700;
-	font-size: 1.25rem;
-	margin-bottom: 10px;
+	margin-bottom: 15px;
+	text-transform: uppercase;
 }
 
-.app-price {
-	font-weight: 700;
-	color: var(--adobe-blue);
+/* --- BUTOANE (Repară aspectul din a doua poză) --- */
+.adobe-btn {
+	display: inline-block;
+	padding: 12px 25px;
+	border-radius: 25px;
+	font-weight: 600;
+	text-align: center;
+	text-decoration: none !important;
+	transition: all 0.2s;
+	cursor: pointer;
+	border: 2px solid transparent;
+}
+
+.adobe-btn-primary {
+	background-color: var(--adobe-blue);
+	color: white !important;
+}
+
+	.adobe-btn-primary:hover {
+		background-color: var(--adobe-blue-hover);
+	}
+
+.adobe-btn-outline {
+	background-color: transparent;
+	border-color: var(--adobe-blue);
+	color: var(--adobe-blue) !important;
+}
+
+	.adobe-btn-outline:hover {
+		background-color: var(--adobe-blue);
+		color: white !important;
+	}
+
+.adobe-btn-main {
+	background-color: var(--adobe-blue);
+	color: white !important;
+	padding: 15px 40px;
+	border-radius: 30px;
+	font-weight: 600;
 	font-size: 1.1rem;
+	box-shadow: 0 4px 15px rgba(20, 115, 230, 0.2);
 }
 
 .adobe-btn-link {
 	color: var(--adobe-blue);
+	font-weight: 700;
 	text-decoration: none;
-	font-weight: 600;
-	font-size: 0.9rem;
 }
 
 	.adobe-btn-link:hover {
 		text-decoration: underline;
 	}
+
+.w-100 {
+	width: 100%;
+}
+
+/* --- RESPONSIVITATE --- */
+@media (max-width: 768px) {
+	.main-headline {
+		font-size: 2.5rem;
+	}
+
+	.product-grid {
+		grid-template-columns: 1fr;
+	}
+}

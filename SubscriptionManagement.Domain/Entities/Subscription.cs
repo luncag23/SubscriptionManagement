@@ -12,6 +12,7 @@ namespace Domain.Entities
 
 		// SCHIMBĂM AICI: În loc de PlanId, folosim AppId (care poate fi App sau Bundle)
 		public Guid AppId { get; set; }
+		public Guid PlanId { get; set; }
 		public CreativeApp App { get; set; } // Referință către Composite element
 
 		public DateTime StartDate { get; set; }

@@ -12,12 +12,12 @@ public class SubscriptionProvider
 
 	public SubscriptionManager GetManager(string accessType)
 	{
-		return accessType.ToLower() switch
+		return accessType.ToLower().Trim() switch
 		{
 			"free" => new FreeTrialManager(_repository),
-			"monthly" => new MonthlySubscriptionManager(_repository), // Redenumim Premium în Monthly
-			"annual" => new AnnualSubscriptionManager(_repository),  // Adăugăm Annual
-			_ => throw new ArgumentException("Tip de acces invalid")
+			"monthly" => new MonthlySubscriptionManager(_repository),
+			"annual" => new AnnualSubscriptionManager(_repository),
+			_ => new MonthlySubscriptionManager(_repository) // Fallback sigur pe Monthly
 		};
 	}
 }

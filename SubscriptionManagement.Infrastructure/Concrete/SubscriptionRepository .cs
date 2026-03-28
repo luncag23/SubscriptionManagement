@@ -164,5 +164,22 @@ namespace DAL.Concrete
 				await _context.SaveChangesAsync();
 			}
 		}
+		public async Task<IEnumerable<Subscription>> GetAllSubscriptionsAsync()
+		{
+			return await _context.Subscriptions
+				.Include(s => s.App) // Ne asigurăm că aducem și datele despre produsul cumpărat
+				.ToListAsync();
+		}
+
+		public async Task<Subscription> GetSubscriptionByIdAsync(Guid id)
+		{
+			return await _context.Subscriptions.Include(s => s.App).FirstOrDefaultAsync(s => s.Id == id);
+		}
+
+		public async Task UpdateSubscriptionAsync(Subscription subscription)
+		{
+			_context.Subscriptions.Update(subscription);
+			await _context.SaveChangesAsync();
+		}
 	}
 }

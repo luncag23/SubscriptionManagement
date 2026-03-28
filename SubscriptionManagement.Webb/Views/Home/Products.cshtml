@@ -1,72 +1,83 @@
 ﻿@model IEnumerable<Domain.Entities.CreativeApp>
 @{
-    ViewData["Title"] = "Toate Aplicațiile";
-    // Cast la dynamic pentru a citi proprietățile Id, Name, Price
-    var bundles = ViewBag.Bundles as IEnumerable<dynamic>;
+     ViewData["Title"] = "Toate Aplicațiile";
+     // Cast la dynamic pentru a citi proprietățile Id, Name, Price, ImageUrl, Description
+     var bundles = ViewBag.Bundles as IEnumerable<dynamic>;
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/css/home.css" />
+     <link rel="stylesheet" href="~/css/home.css" />
 }
 
 <div class="page-container">
-    <h1 class="hero-main-title" style="text-align:left; font-size: 3rem;">Explorați portofoliul nostru</h1>
-    <p class="hero-description" style="margin: 0 0 50px 0; text-align:left;">
-        Alegeți aplicații individuale sau pachete optimizate pentru fluxul dvs. de lucru.
-    </p>
+     <h1 class="hero-main-title" style="text-align:left; font-size: 3rem;">Explorați portofoliul nostru</h1>
+     <p class="hero-description" style="margin: 0 0 50px 0; text-align:left;">
+          Alegeți aplicații individuale sau pachete optimizate pentru fluxul dvs. de lucru.
+     </p>
 
-    <!-- 1. PACHETELE (COMPOSITE) -->
-    <h2 class="section-title">📦 Pachete & Oferte Speciale</h2>
-    <div class="product-grid">
-        @if (bundles != null && bundles.Any())
-        {
-            foreach (var b in bundles)
-            {
-                <div class="adobe-card bundle-card">
-                    <div>
-                        <div class="promo-badge">Bundle Offer</div>
-                        <h4 class="product-name">@b.Name</h4>
-                        <p style="color: #666; font-size: 0.9rem;">Include acces complet la toate uneltele enumerate mai sus.</p>
-                    </div>
-                    <div>
-                        @* CORECTAT: Folosim 'b.Price' și 'b.Id' (corespunzător variabilei 'b' din foreach) *@
-                        <div class="product-price">@b.Price.ToString("F2") RON</div>
-                        <a asp-controller="Subscription" asp-action="Index" asp-route-appId="@b.Id" class="adobe-btn adobe-btn-primary w-100">
-                            Cumpără Pachet
-                        </a>
-                    </div>
-                </div>
-            }
-        }
-        else
-        {
-            <p>Nu există pachete disponibile momentan.</p>
-        }
-    </div>
+     <!-- 1. PACHETELE (COMPOSITE - CALCULATE) -->
+     <h2 class="section-title">📦 Pachete & Oferte Speciale</h2>
+     <div class="product-grid">
+          @if (bundles != null && bundles.Any())
+          {
+               foreach (var b in bundles)
+               {
+                    <div class="adobe-card bundle-card">
+                         <div style="text-align: center;">
+                              <div class="bundle-image-container" style="height: 120px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center;">
+                                   <img src="@(string.IsNullOrEmpty(b.ImageUrl) ? "/images/apps/default-bundle.png" : b.ImageUrl)"
+                                        style="max-height: 100%; border-radius: 8px; object-fit: contain;" />
+                              </div>
+                              <div class="promo-badge">Bundle Offer</div>
+                              <h4 class="product-name">@b.Name</h4>
+                              <p style="color: #666; font-size: 0.85rem; height: 45px; overflow: hidden; margin-bottom: 15px;">
+                                   @b.Description
+                              </p>
 
-    <!-- 2. APLICAȚIILE (LEAFS) -->
-    <h2 class="section-title">🎨 Aplicații Individuale</h2>
-    <div class="product-grid">
-        @foreach (var app in Model)
-        {
-            <div class="adobe-card">
-                <div>
-                    <span class="app-icon">
-                        @(app.Name.Contains("Photoshop") ? "📷" :
-                                            app.Name.Contains("Illustrator") ? "🖌️" :
-                                            app.Name.Contains("Premiere") ? "🎬" : "📱")
-                    </span>
-                    <h4 class="product-name">@app.Name</h4>
-                    <p style="color: #888; font-size: 0.85rem;">Unealtă profesională pentru proiectele tale creative.</p>
-                </div>
-                <div>
-                    <div class="product-price">@app.BasePrice.ToString("F2") RON</div>
-                    @* Aici 'app' este corect deoarece suntem în bucla foreach(var app in Model) *@
+                              @* CORECTAT: Folosim 'Price' (cel calculat de Composite), nu 'BasePrice' *@
+                              <p class="product-price">@b.Price.ToString("F2") RON</p>
+                         </div>
+
+                         @* Butonul care trimite ID-ul pachetului către Checkout *@
+                         <a asp-controller="Subscription" asp-action="Index" asp-route-appId="@b.Id" class="adobe-btn adobe-btn-primary w-100">
+                              Vezi detalii & Cumpără
+                         </a>
+                    </div>
+               }
+          }
+          else
+          {
+               <div class="alert alert-info w-100 text-center">Nu există pachete disponibile momentan.</div>
+          }
+     </div>
+
+     <!-- 2. APLICAȚIILE (LEAFS) -->
+     <h2 class="section-title">🎨 Aplicații Individuale</h2>
+     <div class="product-grid">
+          @foreach (var app in Model)
+          {
+               <div class="adobe-card">
+                    <div style="text-align: center;">
+                         <div class="app-icon-container" style="height: 100px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                              @if (!string.IsNullOrEmpty(app.ImageUrl))
+                              {
+                                   <img src="@app.ImageUrl" style="max-height: 80px; max-width: 80px; object-fit: contain;" />
+                              }
+                              else
+                              {
+                                   <span style="font-size: 3rem;">🎨</span>
+                              }
+                         </div>
+                         <h4 class="product-name">@app.Name</h4>
+                         <p style="font-size: 0.85rem; color: #666; height: 40px; overflow: hidden; margin-bottom: 15px;">
+                              @app.Description
+                         </p>
+                         <p class="product-price">@app.BasePrice.ToString("F2") RON</p>
+                    </div>
                     <a asp-controller="Subscription" asp-action="Index" asp-route-appId="@app.Id" class="adobe-btn adobe-btn-outline w-100">
-                        Cumpără Licență
+                         Vezi detalii & Cumpără
                     </a>
-                </div>
-            </div>
-        }
-    </div>
+               </div>
+          }
+     </div>
 </div>

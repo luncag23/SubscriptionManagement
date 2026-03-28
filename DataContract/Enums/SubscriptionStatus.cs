@@ -9,6 +9,7 @@ namespace DataContract.Enums
 		Active,
 		Expired,
 		Canceled,
-		Trial
+		Trial,
+		CanceledPending   // 4 - Utilizatorul a apăsat Cancel, dar mai are zile plătite
 	}
 }

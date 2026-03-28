@@ -20,10 +20,16 @@
             <input type="text" asp-for="Name" class="custom-select" required />
         </div>
 
-        <div class="form-section">
-            <label>Preț Nou (RON)</label>
-            <input type="number" asp-for="MonthlyPrice" class="custom-select" step="0.01" required />
-        </div>
+          @* În interiorul formularului din ClonePlan.cshtml *@
+          <div class="form-section">
+               <label>Multiplicator Preț (0=Free, 1=Lunar, 10=Anual)</label>
+               <input type="number" asp-for="PriceMultiplier" class="custom-select" step="0.1" required />
+          </div>
+
+          <div class="form-section">
+               <label>Cod Tip (free / monthly / annual)</label>
+               <input type="text" asp-for="PlanTypeCode" class="custom-select" required />
+          </div>
 
         <div class="form-section">
             <label>Descriere</label>

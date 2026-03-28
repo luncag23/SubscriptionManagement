@@ -10,8 +10,8 @@
             <span class="brand-tagline">Adobe Creative Cloud</span>
             <h1 class="main-headline">Creativitate pentru toți.</h1>
             <p class="sub-headline">
-                Obține acces la peste 20 de aplicații de creație, fonturi, stocare în cloud și multe altele.
-                Începe călătoria ta creativă astăzi.
+                Obține acces la cele mai bune unelte de creație din lume.
+                Peste 20 de aplicații, stocare în cloud și resurse nelimitate.
             </p>
 
             <div class="cta-wrapper">
@@ -22,7 +22,7 @@
         </div>
     </section>
 
-    <!-- FEATURED SECTION -->
+    <!-- FEATURED SECTION (DINAMIC DIN BD) -->
     <section class="featured-apps">
         <div class="container">
             <h2 class="section-title">Aplicații recomandate</h2>
@@ -32,17 +32,31 @@
                 {
                     <div class="adobe-card-refined">
                         <div class="card-content">
-                            <div class="app-icon-wrapper">
-                                @(app.Name.Contains("Premiere") ? "🎬" :
-                                                            app.Name.Contains("Illustrator") ? "🖌️" :
-                                                            app.Name.Contains("Photoshop") ? "📷" : "🎨")
+                            <!-- IMAGINE DINAMICĂ -->
+                            <div class="app-icon-wrapper" style="height: 80px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+                                @if (!string.IsNullOrEmpty(app.ImageUrl))
+                                {
+                                    <img src="@app.ImageUrl" alt="@app.Name" style="max-height: 100%; max-width: 100%; object-fit: contain;" />
+                                }
+                                else
+                                {
+                                    <span style="font-size: 3rem;">🎨</span>
+                                }
                             </div>
+
                             <h4 class="app-name">@app.Name</h4>
+
+                            <!-- DESCRIERE DINAMICĂ -->
+                            <p style="font-size: 0.85rem; color: #666; height: 40px; overflow: hidden; margin-bottom: 15px;">
+                                @(string.IsNullOrEmpty(app.Description) ? "Descoperă puterea creativă a " + app.Name : app.Description)
+                            </p>
+
                             <p class="app-price">@app.BasePrice.ToString("F2") RON</p>
                         </div>
-                        <div class="card-footer">
+
+                        <div class="card-footer" style="margin-top: 20px; border-top: 1px solid #f0f0f0; padding-top: 15px;">
                             <a asp-controller="Subscription" asp-action="Index" asp-route-appId="@app.Id" class="adobe-btn-link">
-                                Vezi detalii →
+                                Vezi detalii & Cumpără →
                             </a>
                         </div>
                     </div>

@@ -57,9 +57,11 @@ namespace SubscriptionManagement.Webb.Controllers
 				{
 					calculatedBundles.Add(new
 					{
-						Id = b.Id,               // FOARTE IMPORTANT: Rezolvă eroarea de pe site
+						Id = b.Id,
 						Name = composite.GetName(),
-						Price = composite.GetPrice()
+						Price = composite.GetPrice(),
+						ImageUrl = b.ImageUrl,        // <--- ADAUGĂ ACEASTA
+						Description = b.Description   // <--- ȘI ACEASTA
 					});
 				}
 			}

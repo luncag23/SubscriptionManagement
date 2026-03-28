@@ -1,29 +1,30 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Domain.Entities
 {
 	public class SubscriptionPlan
 	{
 		public Guid Id { get; set; }
-		public string Name { get; set; }
-		public string Description { get; set; }
-		public decimal MonthlyPrice { get; set; }
-		public int MaxStorageGB { get; set; } // Un exemplu de limită/beneficiu
+
+		public string Name { get; set; } = string.Empty;
+
+		public string Description { get; set; } = string.Empty;
+
+		// Codul pentru Factory: "free", "monthly", "annual"
+		public string PlanTypeCode { get; set; } = string.Empty;
+
+		// Multiplicatorul de preț: 0 (Free), 1 (Monthly), 10 (Annual)
+		public decimal PriceMultiplier { get; set; }
+
+		public int MaxStorageGB { get; set; }
+
 		public bool IsActive { get; set; }
 
-		// --- IMPLEMENTARE PROTOTYPE ---
+		// --- IMPLEMENTARE PROTOTYPE PATTERN ---
 		public SubscriptionPlan Clone()
 		{
-			// Cream o copie superficială (Shallow Copy)
-			// MemeberwiseClone este o metodă nativă .NET care copiază toate câmpurile
-			var clone = (SubscriptionPlan)this.MemberwiseClone();
-
-			// Resetăm ID-ul pentru că noua clonă va fi un rând nou în baza de date
-			clone.Id = Guid.NewGuid();
-
-			return clone;
+			// MemberwiseClone face o copie superficială a obiectului curent
+			return (SubscriptionPlan)this.MemberwiseClone();
 		}
 	}
 }

@@ -6,6 +6,11 @@
     <link rel="stylesheet" href="~/css/admin.css" />
     @await RenderSectionAsync("Styles", required: false)
 }
+@* ... restul codului tău de sidebar ... *@
+
+@section Scripts {
+    @await RenderSectionAsync("Scripts", required: false)
+}
 
 <div class="admin-wrapper">
     <nav class="admin-sidebar">

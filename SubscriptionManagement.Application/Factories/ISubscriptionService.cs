@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using DataContract.DTOs;
+﻿using DataContract.DTOs;
 
 namespace BusinessLogic.Factories
 {
 	public interface ISubscriptionService
 	{
-		// Adăugăm Guid userId la final
-		Task<SubscriptionResponse> SubscribeUserAsync(Guid appId, string accessType, string paymentType, Guid userId);
+
+		// Trebuie să aibă și ea 'Guid planId'
+		Task<SubscriptionResponse> SubscribeUserAsync(Guid appId, Guid planId, string planTypeCode, decimal multiplier, string paymentType, Guid userId);
+		Task CancelSubscriptionAsync(Guid subscriptionId);
 	}
 }

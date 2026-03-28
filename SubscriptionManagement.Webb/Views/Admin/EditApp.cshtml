@@ -1,25 +1,59 @@
 ﻿@model Domain.Entities.CreativeApp
-@section Styles {
-    <link rel="stylesheet" href="~/css/subscription.css" />
-}
 @{
     Layout = "_AdminLayout";
 }
 
-<div class="sub-card" style="max-width: 500px; margin: 50px auto;">
-    <h2>✏️ Editează Aplicația</h2>
+@section Styles {
+    <link rel="stylesheet" href="~/css/subscription.css" />
+}
+
+<div class="sub-card" style="max-width: 600px; margin: 0 auto;">
+    <span class="pattern-badge">Edit Mode</span>
+    <h2>Editează Aplicația: @Model.Name</h2>
     <hr />
-    <form asp-action="EditApp" method="post">
+
+    @* enctype este obligatoriu pentru a trimite poze *@
+    <form asp-action="EditApp" method="post" enctype="multipart/form-data">
+
+        @* 1. ID-ul ASCUNS (Esențial pentru ca serverul să știe CE aplicație salvezi) *@
         <input type="hidden" asp-for="Id" />
+
         <div class="form-section">
-            <label>Nume</label>
-            <input type="text" asp-for="Name" class="custom-select" required />
+            <label>Nume Aplicație</label>
+            @* asp-for preia automat textul din baza de date *@
+            <input asp-for="Name" class="custom-select" required />
         </div>
+
+        <div class="form-section">
+            <label>Descriere</label>
+            @* Textarea va fi pre-completat cu descrierea din DB *@
+            <textarea asp-for="Description" class="custom-select" rows="4"></textarea>
+        </div>
+
+        <div class="form-section">
+            <label>Imagine Curentă</label>
+            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+            {
+                <div class="mb-2">
+                    <img src="@Model.ImageUrl" style="max-height: 100px; border-radius: 8px; border: 1px solid #ddd;" />
+                </div>
+            }
+            <input type="file" name="imageFile" class="form-control" accept="image/*" />
+            <small class="text-muted">Lasă gol dacă nu vrei să schimbi imaginea.</small>
+        </div>
+
         <div class="form-section">
             <label>Preț (RON)</label>
-            <input type="number" asp-for="BasePrice" class="custom-select" step="0.01" required />
+            @* Prețul va apărea automat aici *@
+            <input asp-for="BasePrice" class="custom-select" step="0.01" required />
         </div>
-        <button type="submit" class="adobe-btn adobe-btn-primary w-100">Actualizează</button>
-        <a asp-action="Catalog" style="display:block; text-align:center; margin-top:15px; color:#666">Înapoi</a>
+
+        <button type="submit" class="adobe-btn adobe-btn-primary w-100">
+            Salvează Modificările
+        </button>
+
+        <a asp-action="Catalog" style="display:block; text-align:center; margin-top:15px; color:#666; text-decoration:none;">
+            ← Înapoi la Catalog
+        </a>
     </form>
 </div>

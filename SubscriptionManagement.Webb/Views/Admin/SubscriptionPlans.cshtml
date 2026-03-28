@@ -36,11 +36,12 @@
                             <div style="font-weight: 700;">@plan.Name</div>
                             <small class="text-muted">@plan.Description</small>
                         </td>
-                        <td>
-                            <span style="color: var(--adobe-blue); font-weight: 700;">
-                                @plan.MonthlyPrice.ToString("F2") RON
-                            </span>
-                        </td>
+                              @* În interiorul tabelului din SubscriptionPlans.cshtml *@
+                              <td>
+                                   <span style="color: var(--adobe-blue); font-weight: 700;">
+                                        x @plan.PriceMultiplier @* Afișăm multiplicatorul (0, 1 sau 10) *@
+                                   </span>
+                              </td>
                         <td>@plan.MaxStorageGB GB</td>
                         <td class="text-end">
                             <a asp-action="ClonePlan" asp-route-id="@plan.Id" class="adobe-btn adobe-btn-outline" style="padding: 6px 15px; font-size: 0.8rem; width: auto;">

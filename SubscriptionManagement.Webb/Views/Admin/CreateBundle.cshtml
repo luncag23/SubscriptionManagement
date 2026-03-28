@@ -1,19 +1,72 @@
-﻿@section Styles {
-    <link rel="stylesheet" href="~/css/subscription.css" />
-}
+﻿
 @{
     Layout = "_AdminLayout";
+}
+@section Styles {
+     <link rel="stylesheet" href="~/css/subscription.css" />
+     <style>
+          .image-preview-container {
+               width: 150px;
+               height: 100px;
+               border: 2px dashed #ddd;
+               border-radius: 12px;
+               display: flex;
+               align-items: center;
+               justify-content: center;
+               overflow: hidden;
+               margin-bottom: 15px;
+               background-color: #fcfcfc;
+          }
+
+          #previewImg {
+               max-width: 100%;
+               max-height: 100%;
+               display: none;
+          }
+     </style>
 }
 
 <div class="sub-card" style="max-width: 500px; margin: 50px auto;">
     <h2>📦 Creează Pachet Nou</h2>
     <p style="color:#666">După salvare, vei alege ce aplicații conține acest pachet.</p>
     <hr />
+    
     <form asp-action="CreateBundle" method="post">
         <div class="form-section">
-            <label>Nume Pachet (ex: All Apps Bundle)</label>
-            <input type="text" name="name" class="custom-select" required placeholder="Nume pachet..." />
+            <label>Nume Pachet</label>
+            <input type="text" name="name" class="custom-select" required />
+        </div>
+
+          <div class="form-section">
+               <label>Imagine Pachet</label>
+               <div class="image-preview-container">
+                    <span id="placeholderText" style="color:#999; font-size:0.8rem;">Preview</span>
+                    <img id="previewImg" src="#" alt="Preview" />
+               </div>
+               <input type="file" name="imageFile" id="bundleImageInput" class="form-control" accept="image/*" />
+          </div>
+        <div class="form-section">
+            <label>Descriere Scurtă</label>
+            <textarea name="description" class="custom-select" rows="2" placeholder="Ce oferă acest pachet special?"></textarea>
         </div>
         <button type="submit" class="adobe-btn adobe-btn-primary w-100">Continuă la selectare aplicații →</button>
     </form>
+    
 </div>
+
+
+
+
+
+@section Scripts {
+     <script>
+          document.getElementById('bundleImageInput').onchange = function (evt) {
+              const [file] = this.files;
+              if (file) {
+                  document.getElementById('previewImg').src = URL.createObjectURL(file);
+                  document.getElementById('previewImg').style.display = 'block';
+                  document.getElementById('placeholderText').style.display = 'none';
+              }
+          };
+     </script>
+}

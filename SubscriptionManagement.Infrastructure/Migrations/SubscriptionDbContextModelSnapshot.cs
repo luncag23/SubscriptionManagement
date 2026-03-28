@@ -46,6 +46,12 @@ namespace DAL.Migrations
                     b.Property<decimal>("BasePrice")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -70,6 +76,9 @@ namespace DAL.Migrations
                     b.Property<string>("LicenseKey")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("PlanId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
@@ -105,12 +114,16 @@ namespace DAL.Migrations
                     b.Property<int>("MaxStorageGB")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("MonthlyPrice")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PlanTypeCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("PriceMultiplier")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
@@ -202,7 +215,7 @@ namespace DAL.Migrations
                     b.HasOne("Domain.Entities.CreativeApp", "App")
                         .WithMany()
                         .HasForeignKey("AppId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.User", "User")

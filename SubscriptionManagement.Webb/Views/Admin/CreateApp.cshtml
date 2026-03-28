@@ -1,24 +1,85 @@
-﻿@section Styles {
+﻿
+@section Styles {
     <link rel="stylesheet" href="~/css/subscription.css" />
+    <style>
+        .image-preview-container {
+            width: 120px;
+            height: 120px;
+            border: 2px dashed #ddd;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin-bottom: 15px;
+            background-color: #fcfcfc;
+        }
+
+        #previewImg {
+            max-width: 100%;
+            max-height: 100%;
+            display: none;
+        }
+
+        .preview-text {
+            color: #999;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+    </style>
 }
+
 @{
     Layout = "_AdminLayout";
 }
-
-<div class="sub-card" style="max-width: 500px; margin: 50px auto;">
-    <h2>🎨 Adaugă Aplicație</h2>
-    <p style="color:#666">Creează un element individual (ex: Photoshop).</p>
+<div class="sub-card" style="max-width: 500px; margin: 0 auto;">
+    <h2>➕ Adaugă Aplicație</h2>
     <hr />
-    <form asp-action="CreateApp" method="post">
+
+    <form asp-action="CreateApp" method="post" enctype="multipart/form-data">
+
+        <!-- PREVIEW BOX -->
         <div class="form-section">
-            <label>Nume Aplicație</label>
-            <input type="text" name="name" class="custom-select" required placeholder="ex: After Effects" />
+            <label>Previzualizare Imagine</label>
+            <div class="image-preview-container" id="previewBox">
+                <span class="preview-text" id="previewPlaceholder">Nicio imagine<br />selectată</span>
+                <img id="previewImg" src="#" alt="Preview" />
+            </div>
+            <input type="file" name="imageFile" id="imageInput" class="form-control" accept="image/*" required />
         </div>
+
         <div class="form-section">
-            <label>Preț de Bază (RON)</label>
+            <label>Nume</label>
+            <input type="text" name="name" class="custom-select" required />
+        </div>
+
+        <div class="form-section">
+            <label>Descriere</label>
+            <textarea name="description" class="custom-select" rows="3"></textarea>
+        </div>
+
+        <div class="form-section">
+            <label>Preț (RON)</label>
             <input type="number" name="price" class="custom-select" step="0.01" required />
         </div>
-        <button type="submit" class="adobe-btn adobe-btn-primary w-100">Salvează Aplicația</button>
-        <a asp-action="Catalog" style="display:block; text-align:center; margin-top:15px; color:#666">Anulează</a>
+
+        <button type="submit" class="adobe-btn adobe-btn-primary w-100">Creează Aplicația</button>
     </form>
 </div>
+
+@section Scripts {
+    <script>
+        // Logica de previzualizare instantanee
+        document.getElementById('imageInput').onchange = function (evt) {
+            const [file] = this.files;
+            if (file) {
+                const previewImg = document.getElementById('previewImg');
+                const placeholder = document.getElementById('previewPlaceholder');
+
+                previewImg.src = URL.createObjectURL(file);
+                previewImg.style.display = 'block';
+                placeholder.style.display = 'none';
+            }
+        };
+    </script>
+}

@@ -1,0 +1,196 @@
+﻿@model IEnumerable<Domain.Entities.Subscription>
+@using DataContract.Enums
+@{
+     ViewData["Title"] = "Licențele Mele";
+     var planNames = ViewBag.PlanNames as Dictionary<Guid, string>;
+}
+
+@section Styles {
+     <link rel="stylesheet" href="~/css/subscription.css" />
+     <style>
+          .license-container {
+               padding: 50px 0;
+          }
+
+          .license-card {
+               background: white;
+               border-radius: 16px;
+               border: 1px solid #eee;
+               overflow: hidden;
+               transition: 0.3s;
+               box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+               height: 100%;
+               display: flex;
+               flex-direction: column;
+          }
+
+               .license-card:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+               }
+
+          /* Bara de status de sus */
+          .status-bar {
+               height: 8px;
+               width: 100%;
+          }
+
+          .bg-active {
+               background: #28a745;
+          }
+          /* Verde */
+          .bg-trial {
+               background: #fd7e14;
+          }
+          /* Portocaliu */
+          .bg-canceled {
+               background: #6c757d;
+          }
+          /* Gri */
+
+          .license-header {
+               padding: 25px 25px 10px;
+          }
+
+          .license-body {
+               padding: 0 25px 25px;
+               flex-grow: 1;
+               display: flex;
+               flex-direction: column;
+          }
+
+          .app-name {
+               font-weight: 900;
+               font-size: 1.4rem;
+               color: #111;
+               line-height: 1.2;
+          }
+
+          .key-display {
+               background: #fff5f5;
+               border: 1px dashed #EB1000;
+               padding: 15px;
+               border-radius: 10px;
+               text-align: center;
+               margin-top: auto;
+          }
+
+          .key-text {
+               font-family: 'Courier New', monospace;
+               font-size: 1.2rem;
+               font-weight: 800;
+               color: #EB1000;
+               letter-spacing: 2px;
+          }
+
+          .status-badge {
+               font-size: 0.65rem;
+               padding: 4px 12px;
+               border-radius: 20px;
+               font-weight: 800;
+               text-transform: uppercase;
+               letter-spacing: 0.5px;
+          }
+
+          .date-info {
+               font-size: 0.85rem;
+               color: #777;
+               margin-top: 10px;
+          }
+
+          .btn-cancel {
+               border-radius: 20px;
+               font-size: 0.8rem;
+               font-weight: 600;
+               margin-top: 15px;
+               transition: 0.2s;
+          }
+     </style>
+}
+
+<div class="container license-container">
+     <div class="row mb-5 align-items-center">
+          <div class="col-md-8">
+               <h1 style="font-weight: 900; color: #000; margin: 0;">Produsele Tale Adobe</h1>
+               <p class="text-muted mb-0">Gestionați licențele active și configurațiile de acces.</p>
+          </div>
+          <div class="col-md-4 text-md-end">
+               <a asp-controller="Home" asp-action="Products" class="adobe-btn adobe-btn-outline" style="width:auto">+ Cumpără ceva nou</a>
+          </div>
+     </div>
+
+     <div class="row">
+          @if (Model == null || !Model.Any())
+          {
+               <div class="col-12 text-center py-5" style="background: #f9f9f9; border-radius: 20px; border: 2px dashed #eee;">
+                    <span style="font-size: 3rem;">📂</span>
+                    <h3 class="mt-3">Nu ai nicio licență</h3>
+                    <p class="text-muted">Abonamentele tale vor apărea aici după ce finalizezi o achiziție.</p>
+                    <a asp-controller="Home" asp-action="Products" class="adobe-btn adobe-btn-primary" style="width:auto">Vezi Catalog Produse</a>
+               </div>
+          }
+          else
+          {
+               @foreach (var sub in Model.OrderByDescending(s => s.StartDate))
+               {
+                    var isTrial = sub.Status == SubscriptionStatus.Trial;
+                    var isCanceled = sub.Status == SubscriptionStatus.Canceled;
+                    var isActive = sub.Status == SubscriptionStatus.Active;
+
+                    <div class="col-lg-4 col-md-6 mb-4">
+                         <div class="license-card">
+                              @* Bara de culoare dinamica *@
+                              <div class="status-bar @(isTrial ? "bg-trial" : isCanceled ? "bg-canceled" : "bg-active")"></div>
+
+                              <div class="license-header">
+                                   <h3 class="app-name">@(sub.App?.Name ?? "Aplicație")</h3>
+
+                                   @* AICI căutăm numele planului folosind ID-ul *@
+                                   <div style="color: var(--adobe-blue); font-weight: 600; font-size: 0.85rem;">
+                                        Tip abonament:
+                                        @(planNames != null && planNames.ContainsKey(sub.PlanId)
+                                                                      ? planNames[sub.PlanId]
+                                                                      : "Plan Necunoscut")
+                                   </div>
+                              </div>
+
+                              <div class="license-header d-flex justify-content-between align-items-start">
+                                   <h3 class="app-name">@(sub.App?.Name ?? "Produs Adobe")</h3>
+                                   <span class="status-badge" style="background: @(isTrial ? "#fff5eb" : isCanceled ? "#f8f9fa" : "#e6fffa"); color: @(isTrial ? "#fd7e14" : isCanceled ? "#6c757d" : "#28a745")">
+                                        @(isTrial ? "Trial" : isCanceled ? "Canceled" : "Active")
+                                   </span>
+                              </div>
+
+                              <div class="license-body">
+                                   <div class="date-info">
+                                        <div><i class="far fa-calendar-alt"></i> Început: <b>@sub.StartDate.ToString("dd MMM yyyy")</b></div>
+                                        <div><i class="far fa-calendar-times"></i> Expiră: <b>@sub.EndDate.ToString("dd MMM yyyy")</b></div>
+                                   </div>
+
+                                   @* Logica pentru butonul de anulare *@
+                                   @if (!isCanceled && sub.EndDate > DateTime.Now)
+                                   {
+                                        <form asp-action="Cancel" asp-route-id="@sub.Id" method="post" onsubmit="return confirm('Ești sigur că vrei să anulezi reînnoirea? Vei avea acces până la data de @sub.EndDate.ToShortDateString().');">
+                                             <button type="submit" class="btn btn-outline-danger btn-cancel w-100">
+                                                  Anulează Abonamentul
+                                             </button>
+                                        </form>
+                                   }
+                                   else if (isCanceled)
+                                   {
+                                        <div class="alert alert-secondary py-1 px-3 mt-3 mb-0 text-center" style="font-size: 0.75rem; border-radius: 15px;">
+                                             Accesul se va opri la expirare
+                                        </div>
+                                   }
+
+                                   <div class="key-display">
+                                        <small style="display:block; color:#999; margin-bottom:5px; font-size:0.6rem; letter-spacing:1.5px; font-weight:700;">CHEIE ACTIVARE</small>
+                                        <div class="key-text">@sub.LicenseKey</div>
+                                   </div>
+                              </div>
+                         </div>
+                    </div>
+               }
+          }
+     </div>
+</div>

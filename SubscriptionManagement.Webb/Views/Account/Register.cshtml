@@ -2,6 +2,65 @@
     <link rel="stylesheet" href="~/css/account.css" />
 }
 
+<style>
+    /* Separator stilizat */
+    .separator {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 25px 0;
+        color: #888;
+        font-size: 0.85rem;
+    }
+
+        .separator::before, .separator::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #eee;
+        }
+
+        .separator:not(:empty)::before {
+            margin-right: .5em;
+        }
+
+        .separator:not(:empty)::after {
+            margin-left: .5em;
+        }
+
+    /* Buton Google Premium */
+    .btn-google-custom {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: white;
+        border: 1px solid #dcdcdc !important;
+        border-radius: 25px !important;
+        padding: 12px 20px !important;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        text-decoration: none !important;
+        width: 100%;
+    }
+
+        .btn-google-custom:hover {
+            background-color: #f8f9fa !important;
+            border-color: #c0c0c0 !important;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transform: translateY(-1px);
+        }
+
+        .btn-google-custom img {
+            width: 20px;
+            margin-right: 12px;
+        }
+
+        .btn-google-custom span {
+            color: #444;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+</style>
+
 <div class="account-container">
     <div class="account-header">
         <h2>Creează un cont</h2>
@@ -33,6 +92,16 @@
 
         <button type="submit" class="btn-account">Sign Up</button>
     </form>
+
+    <div class="separator">sau continuă cu</div>
+
+    <!-- BUTON SOCIAL (DOAR GOOGLE) -->
+    <div class="social-login-wrapper">
+        <a asp-action="ExternalLogin" asp-route-provider="Google" class="btn-google-custom">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/500px-Google_%22G%22_logo.svg.png" alt="Google Logo" />
+            <span>Continuă cu Google</span>
+        </a>
+    </div>
 
     <div class="account-footer">
         Ai deja un cont? <a asp-action="Login">Loghează-te aici</a>

@@ -4,9 +4,8 @@ using System.Text;
 
 namespace BusinessLogic.Factories
 {
-	//  Interfata principala
 	public interface ISubscriptionActivator
 	{
-		void Activate(Guid userId, Guid planId, string licenseKey);
+		void Activate(Guid userId, Guid appId, Guid planId, string licenseKey, DateTime startDate);
 	}
 }

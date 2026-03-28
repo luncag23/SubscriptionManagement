@@ -9,10 +9,11 @@ namespace BusinessLogic.Factories
 
 		public abstract ISubscriptionActivator CreateActivator();
 
-		public void ProcessSubscription(Guid userId, Guid appId, string licenseKey)
+		public void ProcessSubscription(Guid userId, Guid appId, Guid planId, string licenseKey, DateTime startDate)
 		{
 			var activator = CreateActivator();
-			activator.Activate(userId, appId, licenseKey);
+			// VERIFICĂ: Trimite planId aici?
+			activator.Activate(userId, appId, planId, licenseKey, startDate);
 		}
 	}
 
@@ -25,12 +26,14 @@ namespace BusinessLogic.Factories
 	public class MonthlySubscriptionManager : SubscriptionManager
 	{
 		public MonthlySubscriptionManager(ISubscriptionRepository repository) : base(repository) { }
+		// !!! VERIFICĂ ACEASTA LINIE: Trebuie să fie MonthlyActivator !!!
 		public override ISubscriptionActivator CreateActivator() => new MonthlyActivator(_repository);
 	}
 
 	public class AnnualSubscriptionManager : SubscriptionManager
 	{
 		public AnnualSubscriptionManager(ISubscriptionRepository repository) : base(repository) { }
+		// !!! VERIFICĂ ACEASTA LINIE: Trebuie să fie AnnualActivator !!!
 		public override ISubscriptionActivator CreateActivator() => new AnnualActivator(_repository);
 	}
 }

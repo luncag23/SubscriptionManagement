@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq; // Adăugat pentru FirstOrDefault
-using System.Text;
-using System.Threading.Tasks;
-using BusinessLogic.AbstractFactory;
+﻿using BusinessLogic.AbstractFactory;
 using BusinessLogic.Adapters;
 using BusinessLogic.Composite;
-using BusinessLogic.Factories; // Asigură-te că namespace-urile sunt corecte
 using BusinessLogic.Singleton;
 using DAL.Abstract;
 using DataContract.DTOs;
-using Domain.Entities;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace BusinessLogic.Factories
 {
@@ -20,52 +16,71 @@ namespace BusinessLogic.Factories
 		private readonly SubscriptionProvider _provider;
 		private readonly BillingProvider _billingProvider;
 		private readonly ICurrencyConverter _currencyAdapter;
+		private readonly CreativeToolAssembly _assembly;
 
-		public SubscriptionService(ISubscriptionRepository repository, SubscriptionProvider provider, BillingProvider billingProvider, ICurrencyConverter currencyAdapter)
+		public SubscriptionService(ISubscriptionRepository repository,
+						  SubscriptionProvider provider,
+						  BillingProvider billingProvider,
+						  ICurrencyConverter currencyAdapter,
+						  CreativeToolAssembly assembly)
 		{
 			_repository = repository;
 			_provider = provider;
 			_billingProvider = billingProvider;
 			_currencyAdapter = currencyAdapter;
+			_assembly = assembly;
 		}
 
-		public async Task<SubscriptionResponse> SubscribeUserAsync(Guid appId, string accessType, string paymentType, Guid userId)
+		// CORECTAT: Am adăugat 'Guid planId' în parametrii metodei
+		public async Task<SubscriptionResponse> SubscribeUserAsync(Guid appId, Guid planId, string planTypeCode, decimal multiplier, string paymentType, Guid userId)
 		{
-			// 1. FOLOSIM COMPOSITE: Calculăm prețul real al produsului ales (App sau Bundle)
-			var assembly = new CreativeToolAssembly(_repository);
-			var creativeElement = await assembly.LoadToolHierarchy(appId);
+			var user = await _repository.GetUserByIdAsync(userId);
+			var creativeElement = await _assembly.LoadToolHierarchy(appId);
 
-			if (creativeElement == null) throw new Exception("Produsul nu există!");
+			if (user == null || creativeElement == null) throw new Exception("Utilizator sau Produs negăsit.");
 
+			// 1. LOGICĂ DE PRELUNGIRE (STACKING)
+			var allSubs = await _repository.GetAllSubscriptionsAsync();
+			var latestActiveSub = allSubs
+			    .Where(s => s.UserId == userId && s.AppId == appId && s.EndDate > DateTime.Now)
+			    .OrderByDescending(s => s.EndDate)
+			    .FirstOrDefault();
+
+			DateTime finalStartDate = latestActiveSub != null ? latestActiveSub.EndDate : DateTime.Now;
+
+			// 2. CALCUL PREȚ DINAMIC
 			decimal basePrice = creativeElement.GetPrice();
+			decimal finalPrice = basePrice * multiplier;
 
-			// 2. LOGICA DE FACTORY: Calculăm prețul final în funcție de tipul de acces
-			decimal finalPrice = accessType switch
-			{
-				"free" => 0,
-				"monthly" => basePrice,
-				"annual" => basePrice * 10, // Ofertă: 12 luni la preț de 10
-				_ => basePrice
-			};
+			// 3. GENERARE LICENȚĂ (Singleton)
+			string finalLicense = LicenseGenerator.Instance.GenerateKey();
 
-			// 3. ACTIVARE PRIN FACTORY METHOD
-			var manager = _provider.GetManager(accessType);
-			string licenseKey = LicenseGenerator.Instance.GenerateKey();
-			manager.ProcessSubscription(userId, appId, licenseKey);
+			// 4. ACTIVARE PRIN FACTORY METHOD
+			// Acum 'planId' este recunoscut pentru că l-am adăugat în semnătura de sus
+			var manager = _provider.GetManager(planTypeCode);
+			manager.ProcessSubscription(userId, appId, planId, finalLicense, finalStartDate);
 
-			// 4. PLATA PRIN ABSTRACT FACTORY (Folosim prețul calculat dinamic!)
+			// 5. PLATA ȘI CONVERSIE
 			var billingFactory = _billingProvider.GetFactory(paymentType);
-			var paymentMsg = billingFactory.CreateProcessor().ProcessPayment(finalPrice);
-
-			// 5. CONVERSIE PRIN ADAPTER (Pentru raportare în EUR)
+			string paymentResult = billingFactory.CreateProcessor().ProcessPayment(finalPrice);
 			decimal priceInEur = await _currencyAdapter.ConvertToEur(finalPrice);
 
 			return new SubscriptionResponse
 			{
-				PlanName = $"{creativeElement.GetName()} ({accessType})",
-				LicenseKey = licenseKey,
-				Message = $"Succes! {paymentMsg} | Total: {priceInEur:F2}€ ({finalPrice} RON)"
+				PlanName = $"{creativeElement.GetName()} ({planTypeCode})",
+				LicenseKey = finalLicense,
+				Message = $"Succes! {paymentResult} | Total: {priceInEur:F2}€ ({finalPrice:F2} RON)"
 			};
+		}
+
+		public async Task CancelSubscriptionAsync(Guid subscriptionId)
+		{
+			var sub = await _repository.GetSubscriptionByIdAsync(subscriptionId);
+			if (sub != null)
+			{
+				sub.Status = DataContract.Enums.SubscriptionStatus.Canceled;
+				await _repository.UpdateSubscriptionAsync(sub);
+			}
 		}
 	}
 }

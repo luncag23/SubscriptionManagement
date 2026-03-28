@@ -11,17 +11,19 @@ namespace BusinessLogic.Factories
 		private readonly ISubscriptionRepository _repository;
 		public FreeTrialActivator(ISubscriptionRepository repository) => _repository = repository;
 
-		public void Activate(Guid userId, Guid appId, string licenseKey)
+		public void Activate(Guid userId, Guid appId, Guid planId, string licenseKey, DateTime startDate)
 		{
 			var sub = new Subscription
 			{
 				Id = Guid.NewGuid(),
 				UserId = userId,
 				AppId = appId,
-				StartDate = DateTime.Now,
-				EndDate = DateTime.Now.AddDays(7), // Trial 7 zile
+				PlanId = planId, // <--- ACEASTA ESTE LINIA CARE ÎȚI LIPSEȘTE!
+				LicenseKey = licenseKey,
+				StartDate = startDate,
+				EndDate = startDate.AddDays(7), // Începe de la data primită
 				Status = SubscriptionStatus.Trial,
-				LicenseKey = licenseKey
+				
 			};
 			_repository.SaveSubscriptionAsync(sub).GetAwaiter().GetResult();
 		}
@@ -33,18 +35,20 @@ namespace BusinessLogic.Factories
 		private readonly ISubscriptionRepository _repository;
 		public MonthlyActivator(ISubscriptionRepository repository) => _repository = repository;
 
-		public void Activate(Guid userId, Guid appId, string licenseKey)
+		public void Activate(Guid userId, Guid appId, Guid planId, string licenseKey, DateTime startDate)
 		{
 			var sub = new Subscription
 			{
 				Id = Guid.NewGuid(),
 				UserId = userId,
 				AppId = appId,
-				StartDate = DateTime.Now,
-				EndDate = DateTime.Now.AddMonths(1), // 1 lună
-				Status = SubscriptionStatus.Active,
-				LicenseKey = licenseKey
+				PlanId = planId, // <--- ACEASTA ESTE LINIA CARE ÎȚI LIPSEȘTE!
+				LicenseKey = licenseKey,
+				StartDate = startDate,
+				EndDate = startDate.AddMonths(1),
+				Status = SubscriptionStatus.Active
 			};
+
 			_repository.SaveSubscriptionAsync(sub).GetAwaiter().GetResult();
 		}
 	}
@@ -55,17 +59,19 @@ namespace BusinessLogic.Factories
 		private readonly ISubscriptionRepository _repository;
 		public AnnualActivator(ISubscriptionRepository repository) => _repository = repository;
 
-		public void Activate(Guid userId, Guid appId, string licenseKey)
+		public void Activate(Guid userId, Guid appId, Guid planId, string licenseKey, DateTime startDate)
 		{
 			var sub = new Subscription
 			{
 				Id = Guid.NewGuid(),
 				UserId = userId,
 				AppId = appId,
-				StartDate = DateTime.Now,
-				EndDate = DateTime.Now.AddYears(1), // 1 an
+				PlanId = planId, // <--- ACEASTA ESTE LINIA CARE ÎȚI LIPSEȘTE!
+				LicenseKey = licenseKey,
+				StartDate = startDate,
+				EndDate = startDate.AddYears(1),
 				Status = SubscriptionStatus.Active,
-				LicenseKey = licenseKey
+				
 			};
 			_repository.SaveSubscriptionAsync(sub).GetAwaiter().GetResult();
 		}

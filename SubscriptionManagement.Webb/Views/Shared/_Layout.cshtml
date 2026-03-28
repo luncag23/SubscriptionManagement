@@ -62,6 +62,18 @@
             color: #666;
             font-size: 0.9rem;
         }
+
+          .dropdown-item:hover {
+               background-color: #f0f7ff;
+               color: #1473E6;
+          }
+
+          /* Stil pentru elementele din dropdown pentru a arăta mai profi */
+          .dropdown-menu {
+               animation: fadeIn 0.2s ease-out;
+          }
+
+          
     </style>
 </head>
 <body>
@@ -101,16 +113,50 @@
                     <ul class="navbar-nav align-items-center">
                         @if (User.Identity.IsAuthenticated)
                         {
-                            <li class="nav-item me-3">
-                                <a class="nav-link p-0 user-greeting" asp-controller="Profile" asp-action="Edit">
-                                    👋 Bună, <span class="text-dark fw-bold">@User.Identity.Name</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger px-3" style="border-radius:20px;">Logout</button>
-                                </form>
-                            </li>
+                                   <ul class="navbar-nav align-items-center">
+                                        @if (User.Identity.IsAuthenticated)
+                                        {
+                                             <li class="nav-item dropdown">
+                                                  <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #222; font-weight: 600;">
+                                                       <span class="me-2">👋 Bună, @User.Identity.Name</span>
+                                                  </a>
+
+                                                  <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2" aria-labelledby="userDropdown" style="border-radius: 12px; min-width: 200px; padding: 10px;">
+                                                       <li>
+                                                            <a class="dropdown-item py-2" asp-controller="Profile" asp-action="Edit" style="border-radius: 8px;">
+                                                                 👤 Editează Profil
+                                                            </a>
+                                                       </li>
+                                                       <li>
+                                                            @* Vom crea această pagină imediat pentru a vedea licențele salvate *@
+                                                            <a class="dropdown-item py-2" asp-controller="Subscription" asp-action="MyLicenses" style="border-radius: 8px;">
+                                                                 🔑 Licențele Mele
+                                                            </a>
+                                                       </li>
+
+                                                       <li><hr class="dropdown-divider"></li>
+
+                                                       <li class="px-3 py-1">
+                                                            <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
+                                                                 <button type="submit" class="btn btn-sm btn-outline-danger w-100" style="border-radius: 20px; font-weight: 600;">
+                                                                      Logout
+                                                                 </button>
+                                                            </form>
+                                                       </li>
+                                                  </ul>
+                                             </li>
+                                        }
+                                        else
+                                        {
+                                             @* Codul pentru Login / Sign Up rămâne la fel *@
+                                             <li class="nav-item">
+                                                  <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a>
+                                             </li>
+                                             <li class="nav-item ms-2">
+                                                  <a class="btn btn-primary btn-sm px-4" style="border-radius:20px; background-color:var(--adobe-blue)" asp-controller="Account" asp-action="Register">Sign Up</a>
+                                             </li>
+                                        }
+                                   </ul>
                         }
                         else
                         {

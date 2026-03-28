@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.Migrations
 {
     [DbContext(typeof(SubscriptionDbContext))]
-    [Migration("20260310210323_AddUserProfileTable")]
-    partial class AddUserProfileTable
+    [Migration("20260327221659_InitialSetup")]
+    partial class InitialSetup
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,10 +25,52 @@ namespace DAL.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Domain.Entities.AppBundleAssignment", b =>
+                {
+                    b.Property<Guid>("BundleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AppId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("BundleId", "AppId");
+
+                    b.HasIndex("AppId");
+
+                    b.ToTable("AppBundleAssignments");
+                });
+
+            modelBuilder.Entity("Domain.Entities.CreativeApp", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("BasePrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CreativeApps");
+                });
+
             modelBuilder.Entity("Domain.Entities.Subscription", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AppId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("EndDate")
@@ -52,7 +94,7 @@ namespace DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PlanId");
+                    b.HasIndex("AppId");
 
                     b.HasIndex("UserId");
 
@@ -75,12 +117,16 @@ namespace DAL.Migrations
                     b.Property<int>("MaxStorageGB")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("MonthlyPrice")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PlanTypeCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("PriceMultiplier")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
@@ -103,6 +149,10 @@ namespace DAL.Migrations
 
                     b.Property<DateTime>("JoinedDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -144,12 +194,31 @@ namespace DAL.Migrations
                     b.ToTable("UserProfiles");
                 });
 
+            modelBuilder.Entity("Domain.Entities.AppBundleAssignment", b =>
+                {
+                    b.HasOne("Domain.Entities.CreativeApp", "App")
+                        .WithMany("AssignmentsAsApp")
+                        .HasForeignKey("AppId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.CreativeApp", "Bundle")
+                        .WithMany("AssignmentsAsBundle")
+                        .HasForeignKey("BundleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("App");
+
+                    b.Navigation("Bundle");
+                });
+
             modelBuilder.Entity("Domain.Entities.Subscription", b =>
                 {
-                    b.HasOne("Domain.Entities.SubscriptionPlan", "Plan")
+                    b.HasOne("Domain.Entities.CreativeApp", "App")
                         .WithMany()
-                        .HasForeignKey("PlanId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("AppId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.User", "User")
@@ -158,7 +227,7 @@ namespace DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Plan");
+                    b.Navigation("App");
 
                     b.Navigation("User");
                 });
@@ -172,6 +241,13 @@ namespace DAL.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Entities.CreativeApp", b =>
+                {
+                    b.Navigation("AssignmentsAsApp");
+
+                    b.Navigation("AssignmentsAsBundle");
                 });
 
             modelBuilder.Entity("Domain.Entities.User", b =>
